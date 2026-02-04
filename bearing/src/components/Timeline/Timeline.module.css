@@ -1,0 +1,166 @@
+.timelineSection {
+  padding: 20px 30px;
+  background-color: #f0f7ff;
+  border-top: 1px solid #d6e8ff;
+}
+
+.timelineRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.timelineContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.timelineTrack {
+  flex: 1;
+  height: 6px;
+  background-color: #c8deff;
+  border-radius: 3px;
+  position: relative;
+}
+
+.timelineMarker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  border: 3px solid #6a9ae8;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.timelineMarker:hover {
+  transform: translateY(-50%) scale(1.2);
+  box-shadow: 0 0 0 4px rgba(106, 154, 232, 0.2);
+}
+
+.timelineMarker.selected {
+  transform: translateY(-50%) scale(1.2);
+  box-shadow: 0 0 0 4px rgba(62, 179, 147, 0.5);
+}
+
+.timelineMarker.current {
+  width: 20px;
+  height: 20px;
+  background-color: #3db393;
+  border-color: #3db393;
+}
+
+.timelineMarker.past {
+  background-color: #a8c7ff;
+  border-color: #6a9ae8;
+}
+
+.timelineMarker.future {
+  background-color: white;
+  border-color: #6a9ae8;
+  opacity: 0.7;
+}
+
+.timelineDate {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2a4a8a;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 3;
+  opacity: 0.9;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.timelineButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.btnPrimary {
+  background-color: #3db393;
+  color: white;
+}
+
+.btnPrimary:hover {
+  background-color: #2e8b6e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(62, 179, 147, 0.3);
+}
+
+.btnSecondary {
+  background-color: #f0f7ff;
+  color: #2a4a8a;
+  border: 1px solid #c8deff;
+}
+
+.btnSecondary:hover {
+  background-color: #e0eeff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btnOutline {
+  background-color: transparent;
+  color: #2a4a8a;
+  border: 1px solid #6a9ae8;
+}
+
+.btnOutline:hover {
+  background-color: rgba(106, 154, 232, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(106, 154, 232, 0.2);
+}
+
+.btnIcon {
+  font-size: 14px;
+}
+
+@media (max-width: 1200px) {
+  .timelineRow {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .timelineContent {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .timelineTrack {
+    width: 100%;
+  }
+
+  .timelineButtons {
+    width: 100%;
+    justify-content: center;
+  }
+}

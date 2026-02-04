@@ -1,0 +1,146 @@
+.panel {
+  padding: 25px;
+  overflow-y: auto;
+}
+
+.leftPanel {
+  width: 25%;
+  background-color: #f8fbff;
+  border-right: 1px solid #d6e6ff;
+}
+
+.structureList {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+.structureItem {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background-color: #edf4ff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  font-weight: 500;
+}
+
+.structureItem:hover {
+  background-color: #e0eeff;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.structureItem.active {
+  border-left-color: #6a9ae8;
+  background-color: rgba(106, 154, 232, 0.15);
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iconContainer svg:first-child {
+  color: #6b7b93;
+}
+
+.chevron {
+  color: #6b7b93;
+  transition: transform 0.3s ease;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.structureContent {
+  background-color: white;
+  border: 1px solid #e0eeff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #5a6b8c;
+  line-height: 1.5;
+}
+
+.structureContent ul {
+  padding-left: 20px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.structureContent li {
+  margin-bottom: 4px;
+}
+
+.questionBox {
+  background-color: #e8f4ff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-left: 4px solid #6a9ae8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.questionText {
+  font-style: italic;
+  color: #2a4a8a;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.questionNote {
+  color: #5a6b8c;
+  font-size: 13px;
+}
+
+.statsVerticalContainer {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.statVerticalItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #6a9ae8;
+}
+
+.statVerticalLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #5a6b8c;
+  font-weight: 500;
+}
+
+.statVerticalLabel svg {
+  color: #6a9ae8;
+}
+
+.statVerticalValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2a6fd6;
+}
+
+@media (max-width: 1200px) {
+  .leftPanel {
+    width: 100%;
+    border-right: none;
+  }
+}

@@ -1,0 +1,43 @@
+.appContainer {
+  background: radial-gradient(circle at center, #8CA8D0, #7092BE);
+  color: #333;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1600px;
+  width: 100%;
+  height: 95vh;
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.bottomSections {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .appContainer {
+    padding: 10px;
+  }
+}
