@@ -5,7 +5,7 @@
 
 .centerPanel {
   width: 50%;
-  background-color: #fafcff;
+  background-color: #f0f7ff;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -19,58 +19,42 @@
   height: 100%;
 }
 
-/* 标题区域 */
-.structureHeader {
-  padding: 0 0 20px 0;
-  border-bottom: 1px solid #d6e6ff;
-  margin-bottom: 20px;
-}
-
-.headerTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2d3748;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* 三层结构容器 */
 .structureLayers {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: calc(100% - 60px);
+  height: 100%;
   min-height: 400px;
+  /* 使用更温和的渐变色 */
+  background: linear-gradient(to bottom, #f7fbff, #d4e9ff);
 }
 
 /* 层通用样式 */
 .layer {
   display: flex;
   flex-direction: column;
-  border: 1px solid #c8deff;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .layer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #6a9ae8;
+  box-shadow: none;
 }
 
 .layerHeader {
   padding: 12px 20px;
-  background-color: #f0f7ff;
-  border-bottom: 1px solid #d6e6ff;
+  background-color: transparent;
+  border-bottom: 1px solid #d1e4ff;
 }
 
 .layerTitle {
   font-size: 16px;
   font-weight: 700;
-  color: #2a4a8a;
+  color: #3a5ca9;
   text-align: center;
 }
 
@@ -81,63 +65,46 @@
   align-items: center;
   justify-content: center;
   min-height: 80px;
-}
-
-.layerPlaceholder {
-  color: #94a3b8;
+  background-color: transparent;
+  color: #64748b;
   font-size: 14px;
   text-align: center;
-  padding: 20px;
-  background-color: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 6px;
-  width: 100%;
 }
 
-/* 三层不同的高度和颜色 */
-/* 第一层：核心目的 - 高度最小 */
+/* 三层不同的高度和背景色 */
+/* 第一层：核心目的 - 非常浅的蓝色 */
 .layer1 {
-  flex: 1; /* 1份 */
+  flex: 1;
   min-height: 100px;
-}
-
-.layer1 .layerHeader {
-  background: linear-gradient(90deg, #e6f0ff, #d4e6ff);
-  border-color: #b3d4ff;
+  background-color: rgba(252, 253, 255, 0.9);
 }
 
 .layer1 .layerTitle {
-  color: #1e3a8a;
+  color: #4a6bc5;
 }
 
-/* 第二层：主要目标 - 高度中等 */
+/* 第二层：主要目标 - 浅蓝色 */
 .layer2 {
-  flex: 2; /* 2份 */
+  flex: 2;
   min-height: 150px;
-}
-
-.layer2 .layerHeader {
-  background: linear-gradient(90deg, #d4e6ff, #c2d8ff);
-  border-color: #a8c7ff;
+  /* 使用更浅的蓝色 */
+  background-color: rgba(245, 249, 255, 0.9);
 }
 
 .layer2 .layerTitle {
-  color: #1e40af;
+  color: #3a5ca9;
 }
 
-/* 第三层：基础 - 高度最大 */
+/* 第三层：基础 - 中等浅蓝色 */
 .layer3 {
-  flex: 3; /* 3份 */
+  flex: 3;
   min-height: 200px;
-}
-
-.layer3 .layerHeader {
-  background: linear-gradient(90deg, #c2d8ff, #b0ccff);
-  border-color: #93c5fd;
+  /* 使用更浅的蓝色 */
+  background-color: rgba(237, 244, 255, 0.9);
 }
 
 .layer3 .layerTitle {
-  color: #1d4ed8;
+  color: #2d4da6;
 }
 
 /* 响应式设计 */
@@ -185,8 +152,14 @@
   .layerTitle {
     font-size: 14px;
   }
+}
 
-  .headerTitle {
-    font-size: 16px;
-  }
+.structureLayers {
+  position: relative;
+}
+
+.flowOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
 }
