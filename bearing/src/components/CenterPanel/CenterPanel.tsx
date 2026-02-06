@@ -1,52 +1,30 @@
-import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import ReactFlow, {
-  useEdgesState,
-  applyNodeChanges,
-  // Background,
   type NodeChange,
-  // Panel,
 } from 'reactflow';
-import type { Node, Edge } from 'reactflow';
+import type { NodeTypes } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import styles from './CenterPanel.module.css';
+import WeightNode from '../../nodes/WeightNode';
+import { useFlowStore } from '../../stores/useFlowStore';
 
-const initialNodes: Node[] = [
-  {
-    id: 'n1',
-    data: { label: '核心节点', layer: 'layer1' },
-    position: { x: 120, y: 40 },
-    draggable: true,
-  },
-  {
-    id: 'n2',
-    data: { label: '目标节点', layer: 'layer2' },
-    position: { x: 140, y: 220 },
-    draggable: true,
-  },
-  {
-    id: 'n3',
-    data: { label: '基础节点1', layer: 'layer3' },
-    position: { x: 160, y: 400 },
-    draggable: true,
-  },
-  {
-    id: 'n4',
-    data: { label: '基础节点2', layer: 'layer3' },
-    position: { x: 300, y: 380 },
-    draggable: true,
-  },
-];
-
-const initialEdges: Edge[] = [];
+const nodeTypes: NodeTypes = {
+  weight: WeightNode,
+};
 
 const CenterPanelInner: React.FC = () => {
+  // 从 store 中获取真实数据和方法
+  const nodes = useFlowStore((s) => s.nodes);
+  const edges = useFlowStore((s) => s.edges);
+  const onNodesChange = useFlowStore((s) => s.onNodesChange);
+  const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
+  const onConnect = useFlowStore((s) => s.onConnect);
+
   const layersRef = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   // 添加状态存储容器尺寸
-  const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
+  const [containerSize, setContainerSize] = React.useState({ width: 800, height: 600 });
 
   // 使用 useEffect 监听容器尺寸变化
   useEffect(() => {
@@ -72,18 +50,18 @@ const CenterPanelInner: React.FC = () => {
     // 清理函数
     return () => {
       if (layersRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         resizeObserver.unobserve(layersRef.current);
       }
     };
   }, []);
 
   // 计算每层的边界 - 基于flex比例
-  const layerBounds = useMemo(() => {
+  const layerBounds = React.useMemo(() => {
     const totalHeight = containerSize.height;
     // 按照flex比例分配：1:2:3
     const layer1Height = totalHeight * (1 / 6);    // 1份
     const layer2Height = totalHeight * (2 / 6);    // 2份
-    // const layer3Height = totalHeight * (3 / 6);    // 3份
 
     return {
       layer1: {
@@ -110,65 +88,45 @@ const CenterPanelInner: React.FC = () => {
     };
   }, [containerSize]);
 
-  // 节点变化处理，确保节点在所属层内
-  const onNodesChange = useCallback(
+  // 创建包装的节点变化处理函数
+  const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      setNodes((nds) => {
-        const updatedNodes = applyNodeChanges(changes, nds);
-
-        return updatedNodes.map((node) => {
-          const layer = node.data.layer;
-          const bounds = layerBounds[layer as keyof typeof layerBounds] as {
-            yStart: number;
-            yEnd: number;
-            minY: number;
-            maxY: number;
-          };
-
-
-          if (!bounds || !node.draggable) return node;
-
-          let { x, y } = node.position;
-
-          // 限制x坐标
-          x = Math.max(layerBounds.minX, Math.min(layerBounds.maxX, x));
-
-          // 限制y坐标在所属层内
-          y = Math.max(bounds.minY, Math.min(bounds.maxY, y));
-
-          // 只有当位置发生变化时才更新
-          if (x !== node.position.x || y !== node.position.y) {
-            return {
-              ...node,
-              position: { x, y },
+      // 如果有节点拖拽变化，先应用边界限制
+      const filteredChanges = changes.map(change => {
+        if (change.type === 'position' && change.dragging && change.position) {
+          const node = nodes.find(n => n.id === change.id);
+          if (node && node.data.layer) {
+            const layer = node.data.layer;
+            const bounds = layerBounds[layer as keyof typeof layerBounds] as {
+              minY: number;
+              maxY: number;
             };
+
+            if (bounds) {
+              const { position } = change;
+              let { x, y } = position;
+
+              // 限制x坐标
+              x = Math.max(layerBounds.minX, Math.min(layerBounds.maxX, x));
+
+              // 限制y坐标在所属层内
+              y = Math.max(bounds.minY, Math.min(bounds.maxY, y));
+
+              return {
+                ...change,
+                position: { x, y }
+              };
+            }
           }
-
-          return node;
-        });
+        }
+        return change;
       });
-    },
-    [layerBounds]
-  );
 
-  // // 自定义节点样式
-  // const nodeTypes = useMemo(() => ({
-  //   default: ({ data }: { data: any }) => (
-  //     <div style={{
-  //       padding: '10px',
-  //       backgroundColor: '#fff',
-  //       border: '1px solid #3a5ca9',
-  //       borderRadius: '5px',
-  //       fontSize: '12px',
-  //       minWidth: '100px',
-  //       textAlign: 'center',
-  //       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  //       cursor: 'move',
-  //     }}>
-  //       {data.label}
-  //     </div>
-  //   ),
-  // }), []);
+      // 调用 store 中的 onNodesChange
+      onNodesChange(filteredChanges);
+    },
+    [nodes, onNodesChange, layerBounds]
+  );
 
   return (
     <div className={`${styles.centerPanel} ${styles.panel}`}>
@@ -203,18 +161,19 @@ const CenterPanelInner: React.FC = () => {
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              // nodeTypes={nodeTypes}
-              onNodesChange={onNodesChange}
+              nodeTypes={nodeTypes}
+              onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
 
               // 关键：完全禁用视窗拖拽，只允许节点拖拽
-              panOnDrag={false}          // 禁用视窗拖拽
-              panOnScroll={false}        // 禁用滚轮平移
+              panOnDrag={false}
+              panOnScroll={false}
 
-              // 允许缩放
-              zoomOnScroll={true}
-              zoomOnPinch={true}
-              zoomOnDoubleClick={true}
+              // 禁止缩放
+              zoomOnScroll={false}
+              zoomOnPinch={false}
+              zoomOnDoubleClick={false}
 
               // 固定视窗范围
               translateExtent={[
@@ -231,22 +190,7 @@ const CenterPanelInner: React.FC = () => {
               elementsSelectable={true}
               proOptions={{ hideAttribution: true }}
               fitView={false}
-            >
-              {/* <Background /> */}
-
-              {/* 可选：添加控制面板 */}
-              {/* <Panel position="top-right">
-                <div style={{
-                  backgroundColor: 'white',
-                  padding: '10px',
-                  borderRadius: '5px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  fontSize: '12px'
-                }}>
-                  节点数量: {nodes.length}
-                </div>
-              </Panel> */}
-            </ReactFlow>
+            />
           </div>
         </div>
       </div>

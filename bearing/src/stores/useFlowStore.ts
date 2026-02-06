@@ -14,6 +14,7 @@ import { applyNodeChanges, applyEdgeChanges, addEdge as rfAddEdge } from 'reactf
 import { nanoid } from 'nanoid'
 import type { NodeData } from '../types/flow'
 
+
 // Zustand store 类型
 
 interface FlowSnapshot {
@@ -41,6 +42,8 @@ interface FlowStore {
   deleteNode: (id: string) => void
   saveSnapshot: () => void
   loadSnapshot: (snapshotId: number) => void
+
+  initializeWithData: (initialNodes: Node<NodeData>[], initialEdges: Edge[]) => void
 }
 
 
@@ -83,7 +86,7 @@ export const useFlowStore = create<FlowStore>((set) => ({
           id: nanoid(),
           type: 'weight',
           position: { x: 100, y: 100 },
-          data: { title: '新承重节点',  description: '', type: 'task', weight: 1},
+          data: { title: '新承重节点',  layer: '', description: '', type: 'task', weight: 1},
         },
       ],
     })),
@@ -133,4 +136,10 @@ export const useFlowStore = create<FlowStore>((set) => ({
       }
     }),
 
+    // 使用初始数据初始化节点和边
+    initializeWithData: (initialNodes, initialEdges) =>
+      set({
+        nodes: initialNodes,
+        edges: initialEdges,
+    }),
 }))
