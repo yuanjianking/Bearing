@@ -24,7 +24,7 @@ const App: React.FC = () => {
           type: 'goal' as const,
           weight: 1
         },
-        position: { x: 120, y: 40 },
+        position: { x: 120, y: 30 },
         draggable: true,
       },
       {
@@ -37,7 +37,7 @@ const App: React.FC = () => {
           type: 'task' as const,
           weight: 1
         },
-        position: { x: 140, y: 220 },
+        position: { x: 240, y: 220 },
         draggable: true,
       },
       {
@@ -50,7 +50,7 @@ const App: React.FC = () => {
           type: 'constraint' as const,
           weight: 1
         },
-        position: { x: 140, y: 420 },
+        position: { x: 340, y: 420 },
         draggable: true,
       },
     ];

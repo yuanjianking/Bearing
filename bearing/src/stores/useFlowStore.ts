@@ -36,7 +36,7 @@ interface FlowStore {
   onEdgesChange: OnEdgesChange
   onConnect: (connection: Connection) => void
 
-  addNode: () => void
+  addNode: (node: Node<NodeData>) => void
   updateNode: (id: string, data: Partial<NodeData>) => void
 
   deleteNode: (id: string) => void
@@ -78,16 +78,11 @@ export const useFlowStore = create<FlowStore>((set) => ({
     })),
 
   // 新增节点
-  addNode: () =>
+  addNode: (node: Node<NodeData>) =>
     set((state) => ({
       nodes: [
         ...state.nodes,
-        {
-          id: nanoid(),
-          type: 'weight',
-          position: { x: 100, y: 100 },
-          data: { title: '新承重节点',  layer: '', description: '', type: 'task', weight: 1},
-        },
+        node,
       ],
     })),
 

@@ -8,6 +8,7 @@ import 'reactflow/dist/style.css';
 import styles from './CenterPanel.module.css';
 import WeightNode from '../../nodes/WeightNode';
 import { useFlowStore } from '../../stores/useFlowStore';
+import { nanoid } from 'nanoid';
 
 const nodeTypes: NodeTypes = {
   weight: WeightNode,
@@ -20,6 +21,10 @@ const CenterPanelInner: React.FC = () => {
   const onNodesChange = useFlowStore((s) => s.onNodesChange);
   const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
   const onConnect = useFlowStore((s) => s.onConnect);
+  const addNode = useFlowStore((s) => s.addNode);
+
+  // 移除 useReactFlow 的使用
+  // const { screenToFlowPosition } = useReactFlow();
 
   const layersRef = useRef<HTMLDivElement>(null);
 
@@ -106,11 +111,20 @@ const CenterPanelInner: React.FC = () => {
               const { position } = change;
               let { x, y } = position;
 
-              // 限制x坐标
-              x = Math.max(layerBounds.minX, Math.min(layerBounds.maxX, x));
+              // 节点实际尺寸
+              const NODE_WIDTH = 120;
+              const NODE_HEIGHT = 20;
+              const MARGIN = 5; // 边距
 
-              // 限制y坐标在所属层内
-              y = Math.max(bounds.minY, Math.min(bounds.maxY, y));
+              // 限制x坐标（考虑节点宽度和边距）
+              const minX = MARGIN;
+              const maxX = layerBounds.width - NODE_WIDTH - MARGIN;
+              x = Math.max(minX, Math.min(maxX, x));
+
+              // 限制y坐标（考虑节点高度和边距）
+              const minY = bounds.minY + MARGIN; // 增加边距
+              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN; // 考虑节点高度
+              y = Math.max(minY, Math.min(maxY, y));
 
               return {
                 ...change,
@@ -126,6 +140,91 @@ const CenterPanelInner: React.FC = () => {
       onNodesChange(filteredChanges);
     },
     [nodes, onNodesChange, layerBounds]
+  );
+
+  const handlePaneDoubleClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (!layersRef.current) return;
+
+      // 1. 获取相对于容器的坐标
+      const rect = layersRef.current.getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+
+      // 2. 判断属于哪一层
+      let layer: 'layer1' | 'layer2' | 'layer3' | null = null;
+
+      if (y >= layerBounds.layer1.yStart && y <= layerBounds.layer1.yEnd) {
+        layer = 'layer1';
+      } else if (y >= layerBounds.layer2.yStart && y <= layerBounds.layer2.yEnd) {
+        layer = 'layer2';
+      } else if (y >= layerBounds.layer3.yStart && y <= layerBounds.layer3.yEnd) {
+        layer = 'layer3';
+      }
+
+      if (!layer) return;
+
+      // 3. 位置修正（确保不越界）
+      const bounds = layerBounds[layer];
+
+      if (bounds) {
+              // 节点实际尺寸
+              const NODE_WIDTH = 120;
+              const NODE_HEIGHT = 20;
+              const MARGIN = 5; // 边距
+
+              // 限制x坐标（考虑节点宽度和边距）
+              const minX = MARGIN;
+              const maxX = layerBounds.width - NODE_WIDTH - MARGIN;
+              x = Math.max(minX, Math.min(maxX, x));
+
+              // 限制y坐标（考虑节点高度和边距）
+              const minY = bounds.minY + MARGIN; // 增加边距
+              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN; // 考虑节点高度
+              y = Math.max(minY, Math.min(maxY, y));
+      }
+      const position = {
+        x,
+        y
+      };
+
+      // 4. 根据 layer 设置 title 和 type
+      let title = '';
+      let type: 'goal' | 'task' | 'constraint' | 'resource' = 'task'; // 默认值
+
+      switch (layer) {
+        case 'layer1':
+          title = '新的核心节点';
+          type = 'goal';
+          break;
+        case 'layer2':
+          title = '新的目标节点';
+          type = 'task';
+          break;
+        case 'layer3':
+          title = '新的基础节点';
+          type = 'constraint';
+          break;
+      }
+
+      // 5. 创建新节点
+      const newNode = {
+        id: nanoid(),
+        type: 'weight' as const,
+        position,
+        data: {
+          title,
+          layer,
+          description: '',
+          type,
+          weight: 1
+        },
+      };
+
+      // 5. 添加节点到 store
+      addNode(newNode);
+    },
+    [layerBounds, addNode]
   );
 
   return (
@@ -166,6 +265,7 @@ const CenterPanelInner: React.FC = () => {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
 
+              onDoubleClick={handlePaneDoubleClick}
               // 关键：完全禁用视窗拖拽，只允许节点拖拽
               panOnDrag={false}
               panOnScroll={false}
