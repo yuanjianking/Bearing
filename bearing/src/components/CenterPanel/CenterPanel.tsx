@@ -22,9 +22,7 @@ const CenterPanelInner: React.FC = () => {
   const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
   const onConnect = useFlowStore((s) => s.onConnect);
   const addNode = useFlowStore((s) => s.addNode);
-
-  // 移除 useReactFlow 的使用
-  // const { screenToFlowPosition } = useReactFlow();
+  const setSelectedId = useFlowStore((s) => s.setSelectedId)
 
   const layersRef = useRef<HTMLDivElement>(null);
 
@@ -264,7 +262,8 @@ const CenterPanelInner: React.FC = () => {
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-
+              onNodeClick={(_, node) => setSelectedId(node.id)}
+              onEdgeClick={() => setSelectedId(null)}
               onDoubleClick={handlePaneDoubleClick}
               // 关键：完全禁用视窗拖拽，只允许节点拖拽
               panOnDrag={false}

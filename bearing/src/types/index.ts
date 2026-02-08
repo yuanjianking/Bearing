@@ -15,20 +15,16 @@ export interface StatItem {
   value: string;
 }
 
-// 消息类型
-export interface MessageItem {
-  id: number;
-  type: 'new-node' | 'connection' | 'modification' | 'system';
-  text: string;
-  time: string;
-}
 
 // 洞察项类型
 export interface InsightItem {
   id: number;
+  type: 'persistent' | 'focus' | 'update' | 'system' | 'connection' | 'new-node' | 'modification';
   title: string;
   content: string;
+  time: string;
 }
+
 
 // 快照类型
 export interface SnapshotItem {

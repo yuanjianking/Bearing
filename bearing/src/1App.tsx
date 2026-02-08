@@ -1,7 +1,7 @@
 import ReactFlow, { Background } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { useFlowStore } from './stores/useFlowStore'
-import Inspector from './components/Inspector'
+import Inspector from './components/Inspector/Inspector'
 import { useState } from 'react'
 
 import WeightNode from './nodes/WeightNode'
