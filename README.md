@@ -1,199 +1,211 @@
 # 🏗️ Personal System Structuring Tool (PSST)
 
-## 📋 项目简介
+## 📋 Project Overview
 
-**个人系统结构化工具**是一个基于React、TypeScript和ReactFlow构建的可视化个人系统管理工具。该工具采用三层承重结构的设计理念，帮助用户将抽象的个人发展目标转化为可视化、可操作的系统结构图。
+The **Personal System Structuring Tool** is a visual personal system management tool built with React, TypeScript, and ReactFlow. It employs a three-layer load-bearing structure design philosophy to help users transform abstract personal development goals into visual, actionable system diagrams.
 
-## 🎯 设计理念
+## 🎯 Design Philosophy
 
-### 三层承重结构
-系统采用建筑学中的"承重结构"概念，将个人系统分为三个层次：
+### Three-Layer Load-Bearing Structure
+The system adopts architectural "load-bearing structure" concepts, dividing personal systems into three hierarchical layers:
 
-1. **核心目的层** (生命愿景层) - 顶层承重
-2. **主要目标层** (实施路径层) - 中层承重
-3. **基础支撑层** (日常实践层) - 底层承重
+1. **Core Purpose Layer** (Life Vision Layer) - Top-level load-bearing
+2. **Primary Goals Layer** (Implementation Path Layer) - Middle-level load-bearing
+3. **Foundation Support Layer** (Daily Practice Layer) - Base-level load-bearing
 
-每一层都承载着上层结构的重量，同时为上层提供支撑，形成一个完整、稳定的个人发展系统。
+Each layer supports the weight of the layers above while providing structural stability, forming a complete and resilient personal development system.
 
-## ✨ 核心特性
+## ✨ Core Features
 
-### 🏗️ 三层可视化架构
-- **智能高度分配**：按照1:2:3的比例自动分配高度
-- **渐变色背景**：从浅到深的蓝色渐变，视觉层次分明
-- **节点层级约束**：节点智能限制在所属层级内
+### 🏗️ Three-Layer Visualization Architecture
+- **Intelligent Height Allocation**: Automatic 1:2:3 proportional height distribution
+- **Gradient Background**: Blue gradient from light to dark with clear visual hierarchy
+- **Node Layer Constraints**: Smart containment of nodes within designated layers
 
-### 🖱️ 高级交互功能
-- **智能边界检测**：节点拖拽时自动计算层边界
-- **跨层连接支持**：支持不同层级间的逻辑连接
-- **视窗锁定**：固定视窗范围，聚焦内容区域
-- **响应式缩放**：支持滚轮缩放，保持结构完整
+### 🖱️ Advanced Interaction Features
+- **Smart Boundary Detection**: Automatic layer boundary calculation during node dragging
+- **Cross-Layer Connection Support**: Logical connections between different hierarchical layers
+- **Viewport Locking**: Fixed viewport range for focused content area
+- **Responsive Zooming**: Wheel-based zooming while maintaining structural integrity
 
-### 📊 历史与洞察
-- **系统快照**：保存不同时期的系统状态
-- **变化追踪**：记录节点调整和连接变化
-- **智能分析**：识别持久节点和模式变化
-- **时间线导航**：按时间轴查看系统演进
+### 📊 History & Insights
+- **System Snapshots**: Save system states across different time periods
+- **Change Tracking**: Record node adjustments and connection changes
+- **Intelligent Analysis**: Identify persistent nodes and pattern changes
+- **Timeline Navigation**: View system evolution along a chronological axis
 
-### 🎨 美观的视觉设计
-- **现代化UI**：简洁明了的界面设计
-- **自定义节点**：精心设计的节点视觉
-- **流畅动画**：平滑的交互过渡效果
-- **响应式布局**：完美适配各种屏幕尺寸
+### 🎨 Aesthetic Visual Design
+- **Modern UI**: Clean and intuitive interface design
+- **Custom Nodes**: Carefully designed node visuals
+- **Smooth Animations**: Fluid interaction transitions
+- **Responsive Layout**: Perfect adaptation across various screen sizes
 
-## 🛠️ 技术架构
+## 🛠️ Technical Architecture
 
-### 前端技术栈
-- **React 18** - 现代化React框架
-- **TypeScript** - 类型安全的JavaScript超集
-- **ReactFlow** - 专业的流程图可视化库
-- **CSS Modules** - 模块化样式管理
-- **ResizeObserver API** - 响应式尺寸监听
+### Frontend Tech Stack
+- **React 18** - Modern React framework
+- **TypeScript** - Type-safe JavaScript superset
+- **ReactFlow** - Professional flowchart visualization library
+- **CSS Modules** - Modular style management
+- **ResizeObserver API** - Responsive dimension monitoring
 
-### 架构亮点
-- **单向数据流**：清晰的数据管理
-- **组件化设计**：高度可复用的组件
-- **类型安全**：完善的TypeScript类型定义
-- **性能优化**：智能渲染和状态管理
+### Architectural Highlights
+- **Unidirectional Data Flow**: Clear data management
+- **Component-Based Design**: Highly reusable components
+- **Type Safety**: Comprehensive TypeScript type definitions
+- **Performance Optimization**: Intelligent rendering and state management
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 src/
 ├── components/
-│   └── CenterPanel/              # 核心可视化组件
-│       ├── CenterPanel.tsx       # 主组件（ReactFlow Provider）
-│       ├── CenterPanelInner.tsx  # 三层结构实现
-│       └── CenterPanel.module.css # 样式模块
+│   └── CenterPanel/              # Core visualization component
+│       ├── CenterPanel.tsx       # Main component (ReactFlow Provider)
+│       ├── CenterPanelInner.tsx  # Three-layer structure implementation
+│       └── CenterPanel.module.css # Style module
 ├── hooks/
-│   └── useLayerExtents.ts        # 自定义Hook：图层边界计算
-├── App.tsx                       # 应用入口
-└── styles/                       # 全局样式
+│   └── useLayerExtents.ts        # Custom Hook: Layer boundary calculation
+├── App.tsx                       # Application entry point
+└── styles/                       # Global styles
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Prerequisites
 - Node.js 16+
-- npm 7+ 或 yarn 1.22+
+- npm 7+ or yarn 1.22+
 
-### 安装与启动
+### Installation & Setup
 ```bash
-# 克隆项目
+# Clone the repository
 git clone <repository-url>
 cd psst
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 启动开发服务器
+# Start development server
 npm start
 
-# 构建生产版本
+# Build production version
 npm run build
 ```
 
-访问 http://localhost:3000 查看应用。
+Access the application at http://localhost:3000.
 
-## 🎮 使用指南
+## 🎮 User Guide
 
-### 基础操作
-1. **拖拽节点**：在所属层内自由拖拽节点
-2. **创建连接**：从一个节点拖拽到另一个节点创建连接
-3. **调整视图**：使用滚轮缩放，右键拖拽平移
-4. **保存快照**：点击"Seal Structure"保存当前状态
+### Basic Operations
+1. **Drag Nodes**: Freely drag nodes within their designated layers
+2. **Create Connections**: Drag from one node to another to create connections
+3. **Adjust View**: Use mouse wheel to zoom, right-click and drag to pan
+4. **Save Snapshots**: Click "Seal Structure" to save current state
 
-### 三层结构操作
-- **核心目的层**：放置长期愿景和核心价值观
-- **主要目标层**：设定中期目标和关键结果
-- **基础支撑层**：规划日常实践和习惯养成
+### Three-Layer Structure Operations
+- **Core Purpose Layer**: Place long-term visions and core values
+- **Primary Goals Layer**: Set medium-term objectives and key results
+- **Foundation Support Layer**: Plan daily practices and habit formation
 
-### 节点管理
-- 每个节点代表一个系统元素（目标、习惯、项目等）
-- 节点可以在所属层内自由移动，但不能跨层
-- 支持节点间的逻辑连接，形成系统网络
+### Node Management
+- Each node represents a system element (goals, habits, projects, etc.)
+- Nodes can move freely within their designated layers but cannot cross layers
+- Supports logical connections between nodes to form system networks
 
+## 🎯 Application Scenarios
 
-## 🎯 应用场景
+### Personal Growth Management
+- Annual goal setting and tracking
+- Skill development planning
+- Habit formation systems
 
-### 个人成长管理
-- 年度目标设定与追踪
-- 技能发展规划
-- 习惯养成系统
+### Project Management
+- Project architecture design
+- Task dependency management
+- Team role coordination
 
-### 项目管理
-- 项目架构设计
-- 任务依赖管理
-- 团队分工协调
-### 生活系统构建
-- 健康管理系统
-- 财务规划系统
-- 学习路径设计
+### Life System Construction
+- Health management systems
+- Financial planning systems
+- Learning path design
 
-## 📱 兼容性
+## 📱 Compatibility
 
-- **桌面浏览器**：Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- **移动设备**：iOS Safari 14+, Android Chrome 90+
-- **屏幕尺寸**：支持从手机到4K显示器的各种分辨率
+- **Desktop Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Mobile Devices**: iOS Safari 14+, Android Chrome 90+
+- **Screen Sizes**: Supports various resolutions from mobile phones to 4K displays
 
-## 🔄 开发路线图
+## 🔄 Development Roadmap
 
-### V1.1 (近期)
-- [ ] 快照对比功能
-- [ ] 数据导入导出
-- [ ] 节点属性编辑器
-- [ ] 连接线样式自定义
+### V1.1 (Short-term)
+- [ ] Snapshot comparison functionality
+- [ ] Data import/export capabilities
+- [ ] Node property editor
+- [ ] Connection line style customization
 
-### V1.2 (中期)
-- [ ] 协同编辑功能
-- [ ] 模板系统
-- [ ] 数据统计分析
-- [ ] 移动端优化
+### V1.2 (Medium-term)
+- [ ] Collaborative editing features
+- [ ] Template system
+- [ ] Data statistical analysis
+- [ ] Mobile optimization
 
-### V1.3 (远期)
-- [ ] AI智能建议
-- [ ] 集成日历系统
-- [ ] 多语言支持
-- [ ] 插件生态系统
+### V1.3 (Long-term)
+- [ ] AI intelligent suggestions
+- [ ] Calendar system integration
+- [ ] Multi-language support
+- [ ] Plugin ecosystem
 
+## 🧪 Testing
 
-## 🤝 贡献指南
+```bash
+# Run unit tests
+npm test
 
-我们欢迎各种形式的贡献！请查看[贡献指南](CONTRIBUTING.md)了解详情。
+# Run E2E tests
+npm run test:e2e
 
-### 开发流程
-1. Fork 仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建Pull Request
+# View test coverage
+npm run coverage
+```
 
-### 代码规范
-- 使用TypeScript严格模式
-- 遵循ESLint配置
-- 添加必要的单元测试
-- 更新相关文档
+## 🤝 Contributing Guidelines
 
-## 📄 许可证
+We welcome all forms of contributions! Please check the [Contributing Guide](CONTRIBUTING.md) for details.
 
-本项目采用 [MIT License](LICENSE) - 查看LICENSE文件了解详情。
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
 
-## 📞 支持与反馈
+### Code Standards
+- Use TypeScript strict mode
+- Follow ESLint configuration
+- Add necessary unit tests
+- Update relevant documentation
 
-- **问题报告**：[GitHub Issues](https://github.com/yourusername/psst/issues)
-- **功能建议**：[Feature Requests](https://github.com/yourusername/psst/discussions)
-- **文档改进**：[Documentation](https://github.com/yourusername/psst/wiki)
+## 📄 License
 
-## 🙏 致谢
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
-感谢所有贡献者和用户，特别感谢：
-- [ReactFlow](https://reactflow.dev/) 团队提供的优秀可视化库
-- 所有参与测试和反馈的早期用户
-- 提供灵感的个人管理系统实践者
+## 📞 Support & Feedback
+
+- **Issue Reporting**: [GitHub Issues](https://github.com/yourusername/psst/issues)
+- **Feature Suggestions**: [Feature Requests](https://github.com/yourusername/psst/discussions)
+- **Documentation Improvements**: [Documentation](https://github.com/yourusername/psst/wiki)
+
+## 🙏 Acknowledgments
+
+Thanks to all contributors and users, with special appreciation to:
+- The [ReactFlow](https://reactflow.dev/) team for their excellent visualization library
+- All early users who participated in testing and provided feedback
+- Personal system management practitioners who provided inspiration
 
 ---
 
-**🌟 愿景**：帮助每个人构建属于自己的、可持续的成长系统。
+**🌟 Vision**: Help everyone build their own sustainable growth systems.
 
-**💡 理念**：好的系统应该像建筑一样坚固，像生命一样灵活。
+**💡 Philosophy**: Good systems should be as solid as architecture and as flexible as life.
 
-**🚀 目标**：让个人系统管理从抽象概念变为可视化实践。
+**🚀 Goal**: Transform personal system management from abstract concepts into visual practice.
