@@ -1,22 +1,70 @@
 import React, { useState } from 'react';
-import type{ SnapshotItem } from '../../types';
+import { useFlowStore } from '../../stores/useFlowStore';
 import styles from './Snapshot.module.css';
 
 const Snapshot: React.FC = () => {
-  const [selectedSnapshot, setSelectedSnapshot] = useState<string>('new-chapter');
+  const [selectedSnapshot, setSelectedSnapshot] = useState<string>('');
 
-  const snapshots: SnapshotItem[] = [
-    { id: 'new-chapter', label: '"新章节开始" - 2024年9月12日' },
-    { id: 'q2-review', label: '"Q2回顾" - 2024年6月30日' },
-    { id: 'spring-reset', label: '"春季重置" - 2024年3月15日' },
-    { id: 'year-start', label: '"新年伊始" - 2024年1月1日' },
-    { id: 'year-review', label: '"年度回顾" - 2023年12月31日' }
-  ];
+  // 从store中获取快照数据和方法
+  const snapshots = useFlowStore((s) => s.snapshots);
+  const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
 
-  const handleSnapshotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSnapshot(e.target.value);
-    console.log('选择的快照:', e.target.value);
+  // 格式化时间显示
+  const formatSnapshotTime = (iso: string) => {
+    const d = new Date(iso);
+    const now = new Date();
+
+    const isSameDay =
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    const isYesterday =
+      d.getFullYear() === yesterday.getFullYear() &&
+      d.getMonth() === yesterday.getMonth() &&
+      d.getDate() === yesterday.getDate();
+
+    const time = d.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    if (isSameDay) {
+      return `${time}（今日）`;
+    }
+
+    if (isYesterday) {
+      return `昨天 ${time}`;
+    }
+
+    const date = d.toLocaleDateString([], {
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    return `${date} ${time}`;
   };
+
+  // 处理快照选择
+  const handleSnapshotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const snapshotId = parseInt(e.target.value);
+    if (!isNaN(snapshotId)) {
+      setSelectedSnapshot(e.target.value);
+      loadSnapshot(snapshotId);
+      console.log('加载快照:', snapshotId);
+    }
+  };
+
+  // 如果有快照，默认选中最新的
+  React.useEffect(() => {
+    if (snapshots.length > 0 && !selectedSnapshot) {
+      const latestSnapshot = snapshots[snapshots.length - 1];
+      setSelectedSnapshot(latestSnapshot.id.toString());
+    }
+  }, [snapshots, selectedSnapshot]);
 
   return (
     <div className={styles.snapshotSection}>
@@ -27,11 +75,15 @@ const Snapshot: React.FC = () => {
           value={selectedSnapshot}
           onChange={handleSnapshotChange}
         >
-          {snapshots.map((snapshot) => (
-            <option key={snapshot.id} value={snapshot.id}>
-              {snapshot.label}
-            </option>
-          ))}
+          {snapshots.length === 0 ? (
+            <option value="">暂无快照</option>
+          ) : (
+            snapshots.slice().reverse().map((snapshot) => (
+              <option key={snapshot.id} value={snapshot.id.toString()}>
+                {formatSnapshotTime(snapshot.createdAt)} - {snapshot.nodes.length}个节点
+              </option>
+            ))
+          )}
         </select>
       </div>
     </div>

@@ -111,7 +111,7 @@ const CenterPanelInner: React.FC = () => {
 
               // 节点实际尺寸
               const NODE_WIDTH = 120;
-              const NODE_HEIGHT = 20;
+              const NODE_HEIGHT = 10;
               const MARGIN = 5; // 边距
 
               // 限制x坐标（考虑节点宽度和边距）

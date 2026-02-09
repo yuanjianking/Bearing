@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { FaExchangeAlt , FaLock, FaDownload } from 'react-icons/fa';
-import type  { TimelineMarker } from '../../types';
+import {
+  FaExchangeAlt,
+  FaLock,
+  FaDownload,
+  FaCamera
+} from 'react-icons/fa';
+import type { TimelineMarker } from '../../types';
 import styles from './Timeline.module.css';
+import { useFlowStore } from '../../stores/useFlowStore';
 
 const Timeline: React.FC = () => {
   const [selectedMarker, setSelectedMarker] = useState<string>('2024-09');
+  const [snapshotTip, setSnapshotTip] = useState<string | null>(null);
+  const saveSnapshot = useFlowStore((s) => s.saveSnapshot);
 
   const markers: TimelineMarker[] = [
     { id: '2018-03', date: '2018-03', position: '0%', type: 'past' },
@@ -21,11 +29,37 @@ const Timeline: React.FC = () => {
   };
 
   const handleButtonClick = (action: string) => {
-    alert(`执行操作: ${action}`);
+    switch (action) {
+      case '比较':
+        alert(`执行操作: ${action}`);
+        break;
+      case '封存结构':
+        alert(`执行操作: ${action}`);
+        break;
+      case '导出数据':
+        alert(`执行操作: ${action}`);
+        break;
+      case '记录快照':
+        handleSaveSnapshot();
+        break;
+    }
+  };
+
+  const handleSaveSnapshot = () => {
+    saveSnapshot();
+    setSnapshotTip('✅ 快照已记录');
+    setTimeout(() => setSnapshotTip(null), 1500);
   };
 
   return (
     <div className={styles.timelineSection}>
+      {/* 快照通知 */}
+      {snapshotTip && (
+        <div className={styles.notification}>
+          {snapshotTip}
+        </div>
+      )}
+
       <div className={styles.timelineRow}>
         <div className={styles.timelineContent}>
           <div className={styles.timelineTrack}>
@@ -49,6 +83,16 @@ const Timeline: React.FC = () => {
               <FaExchangeAlt className={styles.btnIcon} />
               比较
             </button>
+
+            {/* 记录快照按钮 */}
+            <button
+              className={`${styles.btn} ${styles.btnSave}`}
+              onClick={() => handleButtonClick('记录快照')}
+            >
+              <FaCamera className={styles.btnIcon} />
+              记录快照
+            </button>
+
             <button
               className={`${styles.btn} ${styles.btnSecondary}`}
               onClick={() => handleButtonClick('封存结构')}
@@ -56,6 +100,7 @@ const Timeline: React.FC = () => {
               <FaLock className={styles.btnIcon} />
               封存结构
             </button>
+
             <button
               className={`${styles.btn} ${styles.btnPrimary}`}
               onClick={() => handleButtonClick('导出数据')}
