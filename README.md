@@ -135,43 +135,6 @@ Access the application at http://localhost:3000.
 - **Mobile Devices**: iOS Safari 14+, Android Chrome 90+
 - **Screen Sizes**: Supports various resolutions from mobile phones to 4K displays
 
-## 🔄 Development Roadmap
-
-### V1.1 (Short-term)
-- [ ] Snapshot comparison functionality
-- [ ] Data import/export capabilities
-- [ ] Node property editor
-- [ ] Connection line style customization
-
-### V1.2 (Medium-term)
-- [ ] Collaborative editing features
-- [ ] Template system
-- [ ] Data statistical analysis
-- [ ] Mobile optimization
-
-### V1.3 (Long-term)
-- [ ] AI intelligent suggestions
-- [ ] Calendar system integration
-- [ ] Multi-language support
-- [ ] Plugin ecosystem
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-npm test
-
-# Run E2E tests
-npm run test:e2e
-
-# View test coverage
-npm run coverage
-```
-
-## 🤝 Contributing Guidelines
-
-We welcome all forms of contributions! Please check the [Contributing Guide](CONTRIBUTING.md) for details.
-
 ### Development Workflow
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
