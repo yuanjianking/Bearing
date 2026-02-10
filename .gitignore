@@ -1,6 +1,25 @@
 /.github
-/ChatGPT Image 2026年2月3日 12_25_07.png
-/ChatGPT Image 2026年2月3日 13_05_01.png
-/deepseek_html_20260204_375339.html
-/实施计划.md
-/设计书.md
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
