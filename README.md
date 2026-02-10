@@ -4,6 +4,9 @@
 
 The **Personal System Structuring Tool** is a visual personal system management tool built with React, TypeScript, and ReactFlow. It employs a three-layer load-bearing structure design philosophy to help users transform abstract personal development goals into visual, actionable system diagrams.
 
+## 🌐 Live Demo
+**Experience it now:** [https://yuanjianking.github.io/Bearing/](https://yuanjianking.github.io/Bearing/)
+
 ## 🎯 Design Philosophy
 
 ### Three-Layer Load-Bearing Structure
@@ -43,11 +46,12 @@ Each layer supports the weight of the layers above while providing structural st
 ## 🛠️ Technical Architecture
 
 ### Frontend Tech Stack
-- **React 18** - Modern React framework
+- **React 19** - Modern React framework
 - **TypeScript** - Type-safe JavaScript superset
 - **ReactFlow** - Professional flowchart visualization library
 - **CSS Modules** - Modular style management
 - **ResizeObserver API** - Responsive dimension monitoring
+- **Vite** - Next generation frontend tooling
 
 ### Architectural Highlights
 - **Unidirectional Data Flow**: Clear data management
@@ -73,26 +77,31 @@ src/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+
-- npm 7+ or yarn 1.22+
+- Node.js 18+
+- npm 9+ or yarn 1.22+
 
 ### Installation & Setup
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd psst
+git clone https://github.com/yuanjianking/Bearing.git
+cd Bearing
 
 # Install dependencies
 npm install
 
 # Start development server
-npm start
+npm run dev
 
 # Build production version
 npm run build
+
+# Deploy to GitHub Pages
+npm run deploy
 ```
 
-Access the application at http://localhost:3000.
+Access the live demo at [https://yuanjianking.github.io/Bearing/](https://yuanjianking.github.io/Bearing/)
+
+Development server runs at http://localhost:5173
 
 ## 🎮 User Guide
 
@@ -148,15 +157,20 @@ Access the application at http://localhost:3000.
 - Add necessary unit tests
 - Update relevant documentation
 
+## 🔗 Related Resources
+- **GitHub Repository**: [https://github.com/yuanjianking/Bearing](https://github.com/yuanjianking/Bearing)
+- **Live Demo**: [https://yuanjianking.github.io/Bearing/](https://yuanjianking.github.io/Bearing/)
+- **Issue Tracker**: [https://github.com/yuanjianking/Bearing/issues](https://github.com/yuanjianking/Bearing/issues)
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
 ## 📞 Support & Feedback
 
-- **Issue Reporting**: [GitHub Issues](https://github.com/yourusername/psst/issues)
-- **Feature Suggestions**: [Feature Requests](https://github.com/yourusername/psst/discussions)
-- **Documentation Improvements**: [Documentation](https://github.com/yourusername/psst/wiki)
+- **Issue Reporting**: [GitHub Issues](https://github.com/yuanjianking/Bearing/issues)
+- **Feature Suggestions**: [Feature Requests](https://github.com/yuanjianking/Bearing/discussions)
+- **Documentation Improvements**: [Documentation](https://github.com/yuanjianking/Bearing/wiki)
 
 ## 🙏 Acknowledgments
 
@@ -164,6 +178,7 @@ Thanks to all contributors and users, with special appreciation to:
 - The [ReactFlow](https://reactflow.dev/) team for their excellent visualization library
 - All early users who participated in testing and provided feedback
 - Personal system management practitioners who provided inspiration
+- GitHub Pages for providing free hosting and deployment
 
 ---
 
@@ -172,3 +187,5 @@ Thanks to all contributors and users, with special appreciation to:
 **💡 Philosophy**: Good systems should be as solid as architecture and as flexible as life.
 
 **🚀 Goal**: Transform personal system management from abstract concepts into visual practice.
+
+**🌐 Live Access**: Visit [https://yuanjianking.github.io/Bearing/](https://yuanjianking.github.io/Bearing/) to start building your personal system today!
