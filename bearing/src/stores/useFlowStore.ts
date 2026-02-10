@@ -7,7 +7,6 @@ import type {
   EdgeChange,
   OnNodesChange,
   OnEdgesChange,
-  Connection,
 } from 'reactflow'
 
 import { applyNodeChanges, applyEdgeChanges, addEdge as rfAddEdge } from 'reactflow'
@@ -34,7 +33,7 @@ interface FlowStore {
 
   onNodesChange: OnNodesChange
   onEdgesChange: OnEdgesChange
-  onConnect: (connection: Connection) => void
+  onConnect: (edge: Edge) => void
 
   addNode: (node: Node<NodeData>) => void
   updateNode: (id: string, data: Partial<NodeData>) => void
@@ -71,11 +70,24 @@ export const useFlowStore = create<FlowStore>((set) => ({
       edges: applyEdgeChanges(changes, state.edges),
     })),
 
-  // 连线回调
-  onConnect: (connection: Connection) =>
-    set((state) => ({
-      edges: rfAddEdge({ ...connection, id: nanoid() }, state.edges),
-    })),
+  // 连线回调 - 修改为接受Connection或Edge
+  // useFlowStore.ts
+  onConnect: (edge: Edge) =>
+    set((state) => {
+      // 检查是否为有效的Edge
+      if (!edge.source || !edge.target) return state;
+
+      // 确保有id
+      const finalEdge = {
+        ...edge,
+        id: edge.id || nanoid(),
+        animated: edge.animated !== undefined ? edge.animated : true,
+      };
+
+      return {
+        edges: rfAddEdge(finalEdge, state.edges),
+      };
+    }),
 
   // 新增节点
   addNode: (node: Node<NodeData>) =>

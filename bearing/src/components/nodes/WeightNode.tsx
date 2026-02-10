@@ -1,6 +1,6 @@
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
-import type { NodeData } from '../types/flow';
+import type { NodeData } from '../../types/flow';
 import styles from './WeightNode.module.css';
 
 export default function WeightNode({ data, selected }: NodeProps<NodeData>) {

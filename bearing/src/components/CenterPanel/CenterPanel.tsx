@@ -2,19 +2,29 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import ReactFlow, {
   type NodeChange,
 } from 'reactflow';
-import type { NodeTypes } from 'reactflow';
+import type { Connection, Edge, EdgeTypes, NodeTypes } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import styles from './CenterPanel.module.css';
-import WeightNode from '../../nodes/WeightNode';
+import WeightNode from '../nodes/WeightNode';
 import { useFlowStore } from '../../stores/useFlowStore';
 import { nanoid } from 'nanoid';
+import VisionToGoalEdge from '../edges/VisionToGoalEdge';
+import GoalToActionEdge from '../edges/GoalToActionEdge';
+import ActionToActionEdge from '../edges/ActionToActionEdge';
 
 const nodeTypes: NodeTypes = {
   weight: WeightNode,
 };
 
-const CenterPanelInner: React.FC = () => {
+const edgeTypes: EdgeTypes = {
+  visionToGoal: VisionToGoalEdge,  // 愿景→目标（蓝色粗线）
+  goalToAction: GoalToActionEdge,  // 目标→行动（绿色中线）
+  actionToAction: ActionToActionEdge, // 基础 → 基础（橙色点虚线）
+};
+
+
+const CenterPanel: React.FC = () => {
   // 从 store 中获取真实数据和方法
   const nodes = useFlowStore((s) => s.nodes);
   const edges = useFlowStore((s) => s.edges);
@@ -225,6 +235,54 @@ const CenterPanelInner: React.FC = () => {
     [layerBounds, addNode]
   );
 
+  const handleConnect = useCallback((connection: Connection) => {
+    if (!connection.source || !connection.target) return;
+
+    const sourceNode = nodes.find(n => n.id === connection.source);
+    const targetNode = nodes.find(n => n.id === connection.target);
+
+    let edgeType = 'default';
+
+    if (sourceNode && targetNode) {
+      const sourceLayer = sourceNode.data.layer;
+      const targetLayer = targetNode.data.layer;
+
+
+     // 1. 禁止同层连接（除了layer3）
+      if (sourceLayer === targetLayer && sourceLayer !== 'layer3') {
+        return;
+      }
+
+      // 核心目的 → 主要目标
+      if (sourceLayer === 'layer1' && targetLayer === 'layer2') {
+        edgeType = 'visionToGoal';
+      }
+      // 主要目标 → 基础
+      else if (sourceLayer === 'layer2' && targetLayer === 'layer3') {
+        edgeType = 'goalToAction';
+      }
+      // 基础 → 基础（同层连接）
+      else if (sourceLayer === 'layer3' && targetLayer === 'layer3') {
+        edgeType = 'actionToAction';
+      }
+      else {
+        return;
+    }
+    }
+
+    // 创建新边
+    const edge: Edge = {
+      id: nanoid(),
+      type: edgeType,
+      source: connection.source,
+      target: connection.target,
+      sourceHandle: connection.sourceHandle || null,
+      targetHandle: connection.targetHandle || null,
+      animated: false,
+    };
+    onConnect(edge);
+  }, [nodes, onConnect]);
+
   return (
     <div className={`${styles.centerPanel} ${styles.panel}`}>
       <div className={styles.centerPanelContent}>
@@ -259,9 +317,10 @@ const CenterPanelInner: React.FC = () => {
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
+              onConnect={handleConnect}
               onNodeClick={(_, node) => setSelectedId(node.id)}
               onEdgeClick={() => setSelectedId(null)}
               onDoubleClick={handlePaneDoubleClick}
@@ -297,4 +356,4 @@ const CenterPanelInner: React.FC = () => {
   );
 };
 
-export default CenterPanelInner;
+export default CenterPanel;

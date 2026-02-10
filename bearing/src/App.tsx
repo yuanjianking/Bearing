@@ -24,9 +24,8 @@ const App: React.FC = () => {
           description: '在工作、健康、关系和成长之间找到可持续的平衡',
           type: 'goal' as const,
           weight: 10,
-          color: '#667eea'
         },
-        position: { x: 300, y: 50 },
+        position: { x: 300, y: 30 },
         draggable: true,
       },
 
@@ -40,7 +39,6 @@ const App: React.FC = () => {
           description: '保持充沛精力和良好身体状况',
           type: 'task' as const,
           weight: 9,
-          color: '#3db393'
         },
         position: { x: 150, y: 180 },
         draggable: true,
@@ -54,7 +52,6 @@ const App: React.FC = () => {
           description: '培养积极心态和持续学习能力',
           type: 'task' as const,
           weight: 8,
-          color: '#f0a732'
         },
         position: { x: 450, y: 180 },
         draggable: true,
@@ -70,7 +67,6 @@ const App: React.FC = () => {
           description: '每周至少3次30分钟有氧运动',
           type: 'constraint' as const,
           weight: 7,
-          color: '#3db393'
         },
         position: { x: 50, y: 320 },
         draggable: true,
@@ -84,7 +80,6 @@ const App: React.FC = () => {
           description: '每天摄入足够蔬菜水果，控制糖分',
           type: 'constraint' as const,
           weight: 6,
-          color: '#3db393'
         },
         position: { x: 240, y: 350 },
         draggable: true,
@@ -98,7 +93,6 @@ const App: React.FC = () => {
           description: '保证每晚7-8小时高质量睡眠',
           type: 'constraint' as const,
           weight: 6,
-          color: '#3db393'
         },
         position: { x: 150, y: 500 },
         draggable: true,
@@ -112,7 +106,6 @@ const App: React.FC = () => {
           description: '每天10分钟冥想练习',
           type: 'constraint' as const,
           weight: 5,
-          color: '#f0a732'
         },
         position: { x: 340, y: 470 },
         draggable: true,
@@ -126,7 +119,6 @@ const App: React.FC = () => {
           description: '每天30分钟阅读书籍',
           type: 'constraint' as const,
           weight: 4,
-          color: '#f0a732'
         },
         position: { x: 570, y: 520 },
         draggable: true,
@@ -140,7 +132,6 @@ const App: React.FC = () => {
           description: '每周与家人朋友保持联系',
           type: 'constraint' as const,
           weight: 3,
-          color: '#9478e8'
         },
         position: { x: 450, y: 400 },
         draggable: true,
@@ -154,17 +145,13 @@ const App: React.FC = () => {
         id: 'e-core-physical',
         source: 'core-purpose',
         target: 'physical-health',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#3db393', strokeWidth: 2 }
+        type: 'visionToGoal',
       },
       {
         id: 'e-core-mental',
         source: 'core-purpose',
         target: 'mental-wellbeing',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#f0a732', strokeWidth: 2 }
+        type: 'visionToGoal',
       },
 
       // 身体健康到具体实践的连接
@@ -172,25 +159,19 @@ const App: React.FC = () => {
         id: 'e-physical-exercise',
         source: 'physical-health',
         target: 'regular-exercise',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#3db393', strokeWidth: 2 }
+        type: 'goalToAction',
       },
       {
         id: 'e-physical-diet',
         source: 'physical-health',
         target: 'healthy-diet',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#3db393', strokeWidth: 2 }
+        type: 'goalToAction',
       },
       {
         id: 'e-physical-sleep',
         source: 'physical-health',
         target: 'adequate-sleep',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#3db393', strokeWidth: 2 }
+        type: 'goalToAction',
       },
 
       // 心理健康到具体实践的连接
@@ -198,25 +179,19 @@ const App: React.FC = () => {
         id: 'e-mental-meditation',
         source: 'mental-wellbeing',
         target: 'daily-meditation',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#f0a732', strokeWidth: 2 }
+        type: 'goalToAction'
       },
       {
         id: 'e-mental-reading',
         source: 'mental-wellbeing',
         target: 'reading-time',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#f0a732', strokeWidth: 2 }
+        type: 'goalToAction',
       },
       {
         id: 'e-mental-social',
         source: 'mental-wellbeing',
         target: 'social-connections',
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#f0a732', strokeWidth: 2 }
+        type: 'goalToAction',
       },
 
 
