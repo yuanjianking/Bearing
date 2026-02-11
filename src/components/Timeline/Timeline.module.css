@@ -1,3 +1,4 @@
+/* Timeline.module.css - 修复版 */
 .timelineSection {
   padding: 20px 30px;
   background-color: #f0f7ff;
@@ -175,6 +176,49 @@
   font-size: 14px;
 }
 
+/* 新增样式 - 保持原有结构不变 */
+.currentStateIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(106, 154, 232, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #2a4a8a;
+  border: 1px solid rgba(106, 154, 232, 0.2);
+}
+
+.returnButton {
+  padding: 4px 12px;
+  background: #3db393;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.returnButton:hover {
+  background: #2e8b6e;
+  transform: translateY(-1px);
+}
+
+.emptyTimeline {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #6a9ae8;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
 @media (max-width: 1200px) {
   .timelineRow {
     flex-direction: column;
@@ -202,5 +246,18 @@
   .btn {
     padding: 8px 15px;
     font-size: 13px;
+  }
+
+  /* 移动端调整 */
+  .currentStateIndicator {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .returnButton {
+    width: 100%;
+    padding: 8px;
   }
 }

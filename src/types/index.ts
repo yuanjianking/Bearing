@@ -32,14 +32,6 @@ export interface SnapshotItem {
   label: string;
 }
 
-// 时间线标记点类型
-export interface TimelineMarker {
-  id: string;
-  date: string;
-  position: string;
-  type: 'past' | 'current' | 'future';
-}
-
 // React Flow 节点类型
 export interface FlowNode {
   id: string;

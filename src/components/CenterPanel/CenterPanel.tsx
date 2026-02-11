@@ -322,7 +322,8 @@ const CenterPanel: React.FC = () => {
               onEdgesChange={onEdgesChange}
               onConnect={handleConnect}
               onNodeClick={(_, node) => setSelectedId(node.id)}
-              onEdgeClick={() => setSelectedId(null)}
+              onEdgeClick={(_, node) => setSelectedId(node.id)}
+              onPaneClick={() => setSelectedId(null)}
               onDoubleClick={handlePaneDoubleClick}
               // 关键：完全禁用视窗拖拽，只允许节点拖拽
               panOnDrag={false}

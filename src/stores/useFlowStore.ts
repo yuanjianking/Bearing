@@ -15,7 +15,6 @@ import type { NodeData } from '../types/flow'
 
 
 // Zustand store 类型
-
 interface FlowSnapshot {
   id: number
   createdAt: string
@@ -37,8 +36,10 @@ interface FlowStore {
 
   addNode: (node: Node<NodeData>) => void
   updateNode: (id: string, data: Partial<NodeData>) => void
-
+  updateEdge: (id: string, updates: Partial<Edge>) => void
   deleteNode: (id: string) => void
+  deleteEdge: (id: string) => void
+
   saveSnapshot: () => void
   loadSnapshot: (snapshotId: number) => void
 
@@ -49,7 +50,7 @@ interface FlowStore {
 export const useFlowStore = create<FlowStore>((set) => ({
   nodes: [],
 
-  edges: [  ],
+  edges: [],
 
   snapshots: [],
 
@@ -106,6 +107,14 @@ export const useFlowStore = create<FlowStore>((set) => ({
       ),
     })),
 
+  // 更新边属性
+  updateEdge: (id: string, updates: Partial<Edge>) =>
+    set((state) => ({
+      edges: state.edges.map((edge) =>
+        edge.id === id ? { ...edge, ...updates } : edge
+      ),
+    })),
+
   // 删除节点及其相关连线
   deleteNode: (id: string) =>
     set((state) => ({
@@ -114,6 +123,12 @@ export const useFlowStore = create<FlowStore>((set) => ({
         (e) => e.source !== id && e.target !== id
       ),
       selectedId: null,
+    })),
+
+  // 删除边
+  deleteEdge: (id: string) =>
+    set((state) => ({
+      edges: state.edges.filter((edge) => edge.id !== id),
     })),
 
   // 保存当前流程快照
