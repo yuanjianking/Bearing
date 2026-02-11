@@ -81,25 +81,32 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   // 1. 记录快照
   recordSnapshot: (title, description, nodes, edges) =>
     set((state) => {
+      const todayStr = new Date().toISOString().split('T')[0]
+
+      // 过滤掉今天已记录的快照
+      const filteredEntries = state.entries.filter(
+        (entry) => entry.createdAt.split('T')[0] !== todayStr || entry.action !== 'snapshot'
+      )
+
       const entry: TimelineEntry = {
         id: nanoid(),
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
         action: 'snapshot',
-        title: `快照: ${title}`,
+        title: `${title}`,
         nodes: JSON.parse(JSON.stringify(nodes)),
         edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           description,
           tags: ['快照', '手动记录'],
         },
-        metrics: calculateMetrics(nodes, edges), // 直接调用外部函数，不通过 get()
-      };
+        metrics: calculateMetrics(nodes, edges),
+      }
 
       return {
-        entries: [...state.entries, entry],
+        entries: [...filteredEntries, entry],
         currentEntryId: entry.id,
-      };
+      }
     }),
 
   // 2. 记录结构切换

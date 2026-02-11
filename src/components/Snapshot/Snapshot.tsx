@@ -27,17 +27,12 @@ const Snapshot: React.FC = () => {
       d.getMonth() === yesterday.getMonth() &&
       d.getDate() === yesterday.getDate();
 
-    const time = d.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
     if (isSameDay) {
-      return `${time}（今日）`;
+      return `今日`;
     }
 
     if (isYesterday) {
-      return `昨天 ${time}`;
+      return `昨天 `;
     }
 
     const date = d.toLocaleDateString([], {
@@ -45,7 +40,7 @@ const Snapshot: React.FC = () => {
       day: '2-digit',
     });
 
-    return `${date} ${time}`;
+    return `${date}`;
   };
 
   // 处理快照选择

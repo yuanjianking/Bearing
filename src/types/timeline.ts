@@ -45,7 +45,7 @@ export interface TimelineEntry {
 
 export interface TimelineMarker {
   id: string;
-  date: string; // YYYY-MM
+  date: string; // YYYY-MM--DD
   position: string; // CSS位置百分比
   type: 'past' | 'current' | 'future';
   entryId?: string;

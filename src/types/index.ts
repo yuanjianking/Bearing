@@ -24,32 +24,3 @@ export interface InsightItem {
   content: string;
   time: string;
 }
-
-
-// 快照类型
-export interface SnapshotItem {
-  id: string;
-  label: string;
-}
-
-// React Flow 节点类型
-export interface FlowNode {
-  id: string;
-  type?: string;
-  position: { x: number; y: number };
-  data: { label: string };
-  style: React.CSSProperties;
-}
-
-// React Flow 连接类型
-export interface FlowEdge {
-  id: string;
-  source: string;
-  target: string;
-  type?: string;
-  style?: React.CSSProperties;
-  markerEnd?: {
-    type: string;
-    color: string;
-  };
-}

@@ -133,17 +133,26 @@ export const useFlowStore = create<FlowStore>((set) => ({
 
   // 保存当前流程快照
   saveSnapshot: () =>
-    set((state) => ({
+    set((state) => {
+    // 生成今天的日期字符串（YYYY-MM-DD格式）
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    // 过滤掉今天已存在的快照
+    const filteredSnapshots = state.snapshots.filter(
+      (snap) => snap.createdAt.split('T')[0] !== todayStr
+    )
+
+    return {
       snapshots: [
-        ...state.snapshots,
+        ...filteredSnapshots,
         {
-          id: Date.now(),
-          createdAt: new Date().toISOString(),
+          id: Date.now(), // 仍然使用时间戳作为唯一id
+          createdAt: new Date().toISOString(), // 保留完整ISO字符串用于排序
           nodes: JSON.parse(JSON.stringify(state.nodes)),
           edges: JSON.parse(JSON.stringify(state.edges)),
         },
       ],
-    })),
+    }}),
 
   // 加载指定快照
   loadSnapshot: (snapshotId: number) =>
@@ -158,8 +167,8 @@ export const useFlowStore = create<FlowStore>((set) => ({
       }
     }),
 
-    // 使用初始数据初始化节点和边
-    initializeWithData: (initialNodes, initialEdges) =>
+  // 使用初始数据初始化节点和边
+  initializeWithData: (initialNodes, initialEdges) =>
       set({
         nodes: initialNodes,
         edges: initialEdges,

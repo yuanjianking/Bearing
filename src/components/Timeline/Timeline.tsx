@@ -29,6 +29,18 @@ const Timeline: React.FC = () => {
   const entries = useTimelineStore((s) => s.entries);
   const goToEntry = useTimelineStore((s) => s.goToEntry);
 
+  // 判断是否是今天（支持多种输入格式）
+  const isToday = (date: string | number | Date) => {
+    const today = new Date().toISOString().split('T')[0]
+    const targetDate = new Date(date).toISOString().split('T')[0]
+    return targetDate === today
+  }
+
+  // 格式化显示日期
+  const formatDate = (date: string | number | Date) => {
+    return new Date(date).toISOString().split('T')[0]
+  }
+
   // 使用真实数据生成标记点
   const markers: TimelineMarker[] = useMemo(() => {
     if (entries.length === 0) {
@@ -44,8 +56,9 @@ const Timeline: React.FC = () => {
     const timeRange = maxTime - minTime;
 
     return sortedEntries.map((entry, index) => {
+      // 按年月日分组
       const date = new Date(entry.timestamp);
-      const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 
       // 计算位置百分比
       let position = '50%';
@@ -156,10 +169,9 @@ const Timeline: React.FC = () => {
     saveSnapshot();
 
     // 2. 同时记录到时间轴
-    const snapshotCount = entries.filter(e => e.action === 'snapshot').length + 1;
     const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const title = `快照${snapshotCount} (${timeStr})`;
+    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const title = `快照 (${dateStr})`;
 
     // 自动生成描述：系统状态概览
     const description = `系统状态: ${nodes.length}个节点, ${edges.length}个连接`;
@@ -216,7 +228,9 @@ const Timeline: React.FC = () => {
                   onClick={() => handleMarkerClick(marker.id)}
                   title={marker.data?.title}
                 >
-                  <div className={styles.timelineDate}>{marker.date}</div>
+                  <div className={styles.timelineDate}>
+                    {isToday(marker.date) ? '今日' : formatDate(marker.date)}
+                  </div>
                 </div>
               ))
             )}
