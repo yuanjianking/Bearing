@@ -15,9 +15,9 @@ export default function ActionToActionEdge(props: EdgeProps) {
       path={edgePath}
       markerEnd={props.markerEnd}
       style={{
-        stroke: '#ff9f43', // 橙色
+        stroke: '#ff9f43',
         strokeWidth: 1.5,
-        strokeDasharray: '3,3', // 点虚线
+        strokeDasharray: '3,3',
       }}
     />
   );

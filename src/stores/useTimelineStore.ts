@@ -5,7 +5,7 @@ import type { NodeData } from '../types/flow';
 import type { TimelineEntry } from '../types/timeline';
 import { nanoid } from 'nanoid';
 
-// 辅助函数：计算系统指标（移到 store 外部，避免类型错误）
+// Helper function: calculate system metrics (moved outside store to avoid type errors)
 const calculateMetrics = (nodes: Node<NodeData>[], edges: Edge[]) => {
   const layerDistribution = { layer1: 0, layer2: 0, layer3: 0 };
   let totalWeight = 0;
@@ -27,12 +27,12 @@ const calculateMetrics = (nodes: Node<NodeData>[], edges: Edge[]) => {
   };
 };
 
-// Timeline store 类型
+// Timeline store types
 interface TimelineStore {
   entries: TimelineEntry[];
   currentEntryId: string | null;
 
-  // 四个关键动作
+  // Four key actions
   recordSnapshot: (
     title: string,
     description: string,
@@ -63,13 +63,13 @@ interface TimelineStore {
     edges: Edge[]
   ) => void;
 
-  // 时间轴操作
+  // Timeline operations
   goToEntry: (entryId: string) => TimelineEntry | null;
   getCurrentEntry: () => TimelineEntry | null;
   deleteEntry: (entryId: string) => void;
   clearAllEntries: () => void;
 
-  // 导出/导入
+  // Export/Import
   exportEntries: () => string;
   importEntries: (jsonString: string) => boolean;
 }
@@ -78,12 +78,12 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   entries: [],
   currentEntryId: null,
 
-  // 1. 记录快照
+  // 1. Record snapshot
   recordSnapshot: (title, description, nodes, edges) =>
     set((state) => {
       const todayStr = new Date().toISOString().split('T')[0]
 
-      // 过滤掉今天已记录的快照
+      // Filter out snapshots already recorded today
       const filteredEntries = state.entries.filter(
         (entry) => entry.createdAt.split('T')[0] !== todayStr || entry.action !== 'snapshot'
       )
@@ -98,7 +98,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           description,
-          tags: ['快照', '手动记录'],
+          tags: ['Snapshot', 'Manual Record'],
         },
         metrics: calculateMetrics(nodes, edges),
       }
@@ -109,7 +109,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       }
     }),
 
-  // 2. 记录结构切换
+  // 2. Record structure switch
   recordStructureSwitch: (previousStructure, newStructure, nodes, edges) =>
     set((state) => {
       const entry: TimelineEntry = {
@@ -117,15 +117,15 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
         action: 'structure_switch',
-        title: `结构切换: ${previousStructure} → ${newStructure}`,
+        title: `Structure Switch: ${previousStructure} → ${newStructure}`,
         nodes: JSON.parse(JSON.stringify(nodes)),
         edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           previousStructure,
           newStructure,
-          tags: ['结构切换', '自动记录'],
+          tags: ['Structure Switch', 'Automatic Record'],
         },
-        metrics: calculateMetrics(nodes, edges), // 直接调用外部函数
+        metrics: calculateMetrics(nodes, edges),
       };
 
       return {
@@ -134,7 +134,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       };
     }),
 
-  // 3. 记录封存结构
+  // 3. Record archive
   recordArchive: (title, completionRate, archivedReason, nodes, edges) =>
     set((state) => {
       const entry: TimelineEntry = {
@@ -142,17 +142,17 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
         action: 'archive',
-        title: `封存: ${title}`,
+        title: `Archive: ${title}`,
         nodes: JSON.parse(JSON.stringify(nodes)),
         edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           description: archivedReason,
           completionRate,
           archivedReason,
-          tags: ['封存', '阶段完成'],
-          emotions: ['成就', '反思'],
+          tags: ['Archive', 'Phase Complete'],
+          emotions: ['Achievement', 'Reflection'],
         },
-        metrics: calculateMetrics(nodes, edges), // 直接调用外部函数
+        metrics: calculateMetrics(nodes, edges),
       };
 
       return {
@@ -161,7 +161,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       };
     }),
 
-  // 4. 记录封章
+  // 4. Record seal chapter
   recordSealChapter: (chapterTitle, chapterSummary, nextChapterPlan, nodes, edges) =>
     set((state) => {
       const entry: TimelineEntry = {
@@ -169,17 +169,17 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
         action: 'seal_chapter',
-        title: `封章: ${chapterTitle}`,
+        title: `Seal Chapter: ${chapterTitle}`,
         nodes: JSON.parse(JSON.stringify(nodes)),
         edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           chapterTitle,
           chapterSummary,
           nextChapterPlan,
-          tags: ['封章', '周期结束'],
-          insights: ['成长', '规划'],
+          tags: ['Seal Chapter', 'Cycle End'],
+          insights: ['Growth', 'Planning'],
         },
-        metrics: calculateMetrics(nodes, edges), // 直接调用外部函数
+        metrics: calculateMetrics(nodes, edges),
       };
 
       return {
@@ -188,7 +188,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       };
     }),
 
-  // 跳转到指定时间点
+  // Go to specific timeline entry
   goToEntry: (entryId: string) => {
     const entry = get().entries.find(e => e.id === entryId);
     if (entry) {
@@ -198,24 +198,24 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     return null;
   },
 
-  // 获取当前时间点
+  // Get current timeline entry
   getCurrentEntry: () => {
     const { currentEntryId, entries } = get();
     return entries.find(e => e.id === currentEntryId) || null;
   },
 
-  // 删除时间点
+  // Delete timeline entry
   deleteEntry: (entryId: string) =>
     set((state) => ({
       entries: state.entries.filter(e => e.id !== entryId),
       currentEntryId: state.currentEntryId === entryId ? null : state.currentEntryId,
     })),
 
-  // 清空所有时间点
+  // Clear all timeline entries
   clearAllEntries: () =>
     set({ entries: [], currentEntryId: null }),
 
-  // 导出数据为 JSON
+  // Export data as JSON
   exportEntries: () => {
     const { entries, currentEntryId } = get();
     return JSON.stringify({
@@ -226,14 +226,14 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     }, null, 2);
   },
 
-  // 从 JSON 导入数据
+  // Import data from JSON
   importEntries: (jsonString: string) => {
     try {
       const data = JSON.parse(jsonString);
 
-      // 基本验证
+      // Basic validation
       if (!Array.isArray(data.entries)) {
-        throw new Error('无效的数据格式');
+        throw new Error('Invalid data format');
       }
 
       set({
@@ -243,7 +243,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
 
       return true;
     } catch (error) {
-      console.error('导入时间轴数据失败:', error);
+      console.error('Failed to import timeline data:', error);
       return false;
     }
   },

@@ -18,123 +18,123 @@ const LeftPanel: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  // 当前结构状态管理
+  // Current structure state management
   const [currentStructure, setCurrentStructure] = useState<{
     exists: boolean;
     name?: string;
     created?: string;
     nodes?: number;
   }>({
-    exists: false // 初始为无结构状态
+    exists: false // Initial state: no structure
   });
 
-  // 过往历程状态管理
+  // Past journeys state management
   const [pastJourneys, setPastJourneys] = useState<string[]>([]);
 
   const structureItems: StructureItem[] = [
     {
       id: 'current-structure',
-      label: '当前结构',
+      label: 'Current Structure',
       content: currentStructure
     },
     {
       id: 'snapshot-archive',
-      label: '快照存档',
+      label: 'Snapshot Archive',
       content: {
-        count: '27个快照',
-        recent: '"新章节开始" - 2024年9月12日',
-        earliest: '"初始结构" - 2018年3月10日',
-        autoSave: '每周自动创建快照',
-        milestones: '2020年职业转型、2022年健康计划启动、2024年创意项目开始'
+        count: '27 snapshots',
+        recent: '"New Chapter Started" - Sep 12, 2024',
+        earliest: '"Initial Structure" - Mar 10, 2018',
+        autoSave: 'Weekly automatic snapshots',
+        milestones: 'Career transition in 2020, Health plan launch in 2022, Creative project start in 2024'
       }
     },
     {
       id: 'past-journeys',
-      label: '过往历程',
+      label: 'Past Journeys',
       content: {
         span: pastJourneys.length > 0
-          ? `${pastJourneys[0].split('：')[0]} 至今`
-          : '暂无历程',
+          ? `${pastJourneys[0].split('：')[0]} to present`
+          : 'No journeys yet',
         stages: pastJourneys,
-        turningPoints: '待添加'
+        turningPoints: 'To be added'
       }
     },
     {
       id: 'sealed-chapters',
-      label: '已封存章节',
+      label: 'Sealed Chapters',
       content: {
-        count: '5个章节',
+        count: '5 chapters',
         reasons: JSON.stringify([
-          '学生时代系统 (封存于2020年)',
-          '创业尝试结构 (封存于2022年)',
-          '健康挑战期规划 (封存于2023年)'
+          'Student Life System (Sealed in 2020)',
+          'Entrepreneurship Attempt Structure (Sealed in 2022)',
+          'Health Challenge Plan (Sealed in 2023)'
         ]),
-        time: '最长已封存4年，最短1年',
-        note: '封存章节只读，可查看但不可编辑'
+        time: 'Longest sealed for 4 years, shortest for 1 year',
+        note: 'Sealed chapters are read-only, can be viewed but not edited'
       }
     }
   ];
 
   const stats: StatItem[] = [
-    { label: '活跃节点', value: currentStructure.nodes?.toString() || '0' },
-    { label: '近期变动', value: '0' },
-    { label: '使用年数', value: currentStructure.exists ? '1' : '0' }
+    { label: 'Active Nodes', value: currentStructure.nodes?.toString() || '0' },
+    { label: 'Recent Changes', value: '0' },
+    { label: 'Years in Use', value: currentStructure.exists ? '1' : '0' }
   ];
 
   const handleItemClick = (itemId: string) => {
     setActiveItem(activeItem === itemId ? null : itemId);
   };
 
-  // 处理切换到新结构
+  // Handle switching to new structure
   const handleSwitchToNewStructure = () => {
     setShowConfirmDialog(true);
   };
 
-  // 确认创建新结构
+  // Confirm creation of new structure
   const confirmNewStructure = () => {
-    // 1. 如果存在当前结构，自动封存为 Past Journey
+    // 1. If current structure exists, automatically seal it as Past Journey
     if (currentStructure.exists) {
-      const archiveEntry = `${currentStructure.name || '未命名结构'} (${currentStructure.created || '未知时间'})`;
+      const archiveEntry = `${currentStructure.name || 'Unnamed Structure'} (${currentStructure.created || 'Unknown time'})`;
       setPastJourneys(prev => [archiveEntry, ...prev]);
-      // TODO: 实际封存逻辑 - 将当前结构移动到已封存章节
+      // TODO: Actual sealing logic - move current structure to sealed chapters
     }
 
-    // 2. 创建新结构 - 空结构初始状态
+    // 2. Create new structure - empty structure initial state
     const now = new Date();
-    const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
     setCurrentStructure({
       exists: true,
-      name: '新结构',
+      name: 'New Structure',
       created: dateStr,
       nodes: 0
     });
 
-    // 3. 关闭对话框
+    // 3. Close dialog
     setShowConfirmDialog(false);
-    setActiveItem(null); // 收起当前结构面板
+    setActiveItem(null); // Collapse current structure panel
   };
 
-  // 取消创建
+  // Cancel creation
   const cancelNewStructure = () => {
     setShowConfirmDialog(false);
   };
 
-  // 处理开始新结构
+  // Handle start structure
   const handleStartStructure = () => {
     const now = new Date();
-    const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
     setCurrentStructure({
       exists: true,
-      name: '我的结构',
+      name: 'My Structure',
       created: dateStr,
       nodes: 0
     });
     setActiveItem(null);
   };
 
-  // 类型守卫函数
+  // Type guard functions
   const isPastJourney = (content: StructureContent): content is PastJourney => {
     return 'span' in content && 'stages' in content;
   };
@@ -160,10 +160,10 @@ const LeftPanel: React.FC = () => {
           {content.exists ? (
             <>
               <div className={styles.structureInfo}>
-                <p><strong>结构名称：</strong>{content.name || '未命名'}</p>
-                <p><strong>创建时间：</strong>{content.created || '未知'}</p>
-                <p><strong>节点数量：</strong>{content.nodes || 0}个活跃节点</p>
-                <p><strong>结构状态：</strong>活跃中</p>
+                <p><strong>Structure Name:</strong> {content.name || 'Unnamed'}</p>
+                <p><strong>Created:</strong> {content.created || 'Unknown'}</p>
+                <p><strong>Node Count:</strong> {content.nodes || 0} active nodes</p>
+                <p><strong>Status:</strong> Active</p>
               </div>
 
               <button
@@ -190,8 +190,8 @@ const LeftPanel: React.FC = () => {
     if (isPastJourney(content)) {
       return (
         <div>
-          <p><strong>历程跨度：</strong>{content.span}</p>
-          <p><strong>主要阶段：</strong></p>
+          <p><strong>Journey Span:</strong> {content.span}</p>
+          <p><strong>Main Stages:</strong></p>
           {content.stages.length > 0 ? (
             <ul>
               {content.stages.map((stage: string, index: number) => (
@@ -199,9 +199,9 @@ const LeftPanel: React.FC = () => {
               ))}
             </ul>
           ) : (
-            <p className={styles.emptyText}>暂无过往历程</p>
+            <p className={styles.emptyText}>No past journeys yet</p>
           )}
-          <p><strong>关键转折点：</strong>{content.turningPoints}</p>
+          <p><strong>Key Turning Points:</strong> {content.turningPoints}</p>
         </div>
       );
     }
@@ -209,11 +209,11 @@ const LeftPanel: React.FC = () => {
     if (isSnapshotArchive(content)) {
       return (
         <div>
-          <p><strong>存档数量：</strong>{content.count}</p>
-          <p><strong>最近快照：</strong>{content.recent}</p>
-          <p><strong>最早快照：</strong>{content.earliest}</p>
-          <p><strong>自动存档：</strong>{content.autoSave}</p>
-          <p><strong>重要里程碑：</strong>{content.milestones}</p>
+          <p><strong>Archive Count:</strong> {content.count}</p>
+          <p><strong>Most Recent Snapshot:</strong> {content.recent}</p>
+          <p><strong>Earliest Snapshot:</strong> {content.earliest}</p>
+          <p><strong>Auto Archive:</strong> {content.autoSave}</p>
+          <p><strong>Key Milestones:</strong> {content.milestones}</p>
         </div>
       );
     }
@@ -222,15 +222,15 @@ const LeftPanel: React.FC = () => {
       const reasons = JSON.parse(content.reasons);
       return (
         <div>
-          <p><strong>封存数量：</strong>{content.count}</p>
-          <p><strong>封存原因：</strong></p>
+          <p><strong>Sealed Count:</strong> {content.count}</p>
+          <p><strong>Sealing Reasons:</strong></p>
           <ul>
             {reasons.map((reason: string, index: number) => (
               <li key={index}>{reason}</li>
             ))}
           </ul>
-          <p><strong>封存时间：</strong>{content.time}</p>
-          <p><strong>备注：</strong>{content.note}</p>
+          <p><strong>Sealed Duration:</strong> {content.time}</p>
+          <p><strong>Note:</strong> {content.note}</p>
         </div>
       );
     }
@@ -250,7 +250,7 @@ const LeftPanel: React.FC = () => {
 
   return (
     <div className={`${styles.leftPanel} ${styles.panel}`}>
-      {/* 确认对话框 */}
+      {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div className={styles.confirmDialogOverlay}>
           <div className={styles.confirmDialog}>
@@ -301,11 +301,11 @@ const LeftPanel: React.FC = () => {
       <div className={styles.questionBox}>
         <div className={styles.questionText}>
           {currentStructure.exists
-            ? "我是否为当前阶段构建了合适的结构？"
-            : "准备好构建你的第一个生命结构了吗？"}
+            ? "Have I built the right structure for my current stage?"
+            : "Ready to build your first life structure?"}
         </div>
         <div className={styles.questionNote}>
-          这是你在过去7年中反复思考的核心问题
+          This is the core question you've reflected on over the past 7 years
         </div>
       </div>
 

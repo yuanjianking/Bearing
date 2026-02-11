@@ -12,16 +12,16 @@ const App: React.FC = () => {
   const initializeWithData = useFlowStore((s) => s.initializeWithData);
 
   useEffect(() => {
-    // 生活化的三层结构示例：建立健康平衡的生活系统
+    // Life-oriented three-layer structure example: Building a balanced and healthy life system
     const initialNodes = [
-      // 第一层：核心目的（只有一个）
+      // Layer 1: Core purpose (only one)
       {
         id: 'core-purpose',
         type: 'weight',
         data: {
-          title: '平衡健康的生活',
+          title: 'Balanced Healthy Life',
           layer: 'layer1',
-          description: '在工作、健康、关系和成长之间找到可持续的平衡',
+          description: 'Find sustainable balance between work, health, relationships, and growth',
           type: 'goal' as const,
           weight: 10,
         },
@@ -29,14 +29,14 @@ const App: React.FC = () => {
         draggable: true,
       },
 
-      // 第二层：主要目标（两个关键支柱）
+      // Layer 2: Main goals (two key pillars)
       {
         id: 'physical-health',
         type: 'weight',
         data: {
-          title: '身体健康与活力',
+          title: 'Physical Health & Vitality',
           layer: 'layer2',
-          description: '保持充沛精力和良好身体状况',
+          description: 'Maintain abundant energy and good physical condition',
           type: 'task' as const,
           weight: 9,
         },
@@ -47,9 +47,9 @@ const App: React.FC = () => {
         id: 'mental-wellbeing',
         type: 'weight',
         data: {
-          title: '心理健康与成长',
+          title: 'Mental Health & Growth',
           layer: 'layer2',
-          description: '培养积极心态和持续学习能力',
+          description: 'Cultivate positive mindset and continuous learning ability',
           type: 'task' as const,
           weight: 8,
         },
@@ -57,14 +57,14 @@ const App: React.FC = () => {
         draggable: true,
       },
 
-      // 第三层：基础（多个具体实践）
+      // Layer 3: Base (multiple specific practices)
       {
         id: 'regular-exercise',
         type: 'weight',
         data: {
-          title: '规律运动',
+          title: 'Regular Exercise',
           layer: 'layer3',
-          description: '每周至少3次30分钟有氧运动',
+          description: 'At least 3 sessions of 30-minute cardio per week',
           type: 'constraint' as const,
           weight: 7,
         },
@@ -75,9 +75,9 @@ const App: React.FC = () => {
         id: 'healthy-diet',
         type: 'weight',
         data: {
-          title: '均衡饮食',
+          title: 'Balanced Diet',
           layer: 'layer3',
-          description: '每天摄入足够蔬菜水果，控制糖分',
+          description: 'Consume enough fruits and vegetables daily, control sugar intake',
           type: 'constraint' as const,
           weight: 6,
         },
@@ -88,9 +88,9 @@ const App: React.FC = () => {
         id: 'adequate-sleep',
         type: 'weight',
         data: {
-          title: '充足睡眠',
+          title: 'Adequate Sleep',
           layer: 'layer3',
-          description: '保证每晚7-8小时高质量睡眠',
+          description: 'Ensure 7-8 hours of quality sleep every night',
           type: 'constraint' as const,
           weight: 6,
         },
@@ -101,9 +101,9 @@ const App: React.FC = () => {
         id: 'daily-meditation',
         type: 'weight',
         data: {
-          title: '每日冥想',
+          title: 'Daily Meditation',
           layer: 'layer3',
-          description: '每天10分钟冥想练习',
+          description: '10 minutes of meditation practice daily',
           type: 'constraint' as const,
           weight: 5,
         },
@@ -114,9 +114,9 @@ const App: React.FC = () => {
         id: 'reading-time',
         type: 'weight',
         data: {
-          title: '阅读时间',
+          title: 'Reading Time',
           layer: 'layer3',
-          description: '每天30分钟阅读书籍',
+          description: '30 minutes of book reading daily',
           type: 'constraint' as const,
           weight: 4,
         },
@@ -127,9 +127,9 @@ const App: React.FC = () => {
         id: 'social-connections',
         type: 'weight',
         data: {
-          title: '社交联系',
+          title: 'Social Connections',
           layer: 'layer3',
-          description: '每周与家人朋友保持联系',
+          description: 'Stay in touch with family and friends weekly',
           type: 'constraint' as const,
           weight: 3,
         },
@@ -140,7 +140,7 @@ const App: React.FC = () => {
     ];
 
     const initialEdges = [
-      // 核心目的到主要目标的连接
+      // Connections from core purpose to main goals
       {
         id: 'e-core-physical',
         source: 'core-purpose',
@@ -154,7 +154,7 @@ const App: React.FC = () => {
         type: 'visionToGoal',
       },
 
-      // 身体健康到具体实践的连接
+      // Connections from physical health to specific practices
       {
         id: 'e-physical-exercise',
         source: 'physical-health',
@@ -174,7 +174,7 @@ const App: React.FC = () => {
         type: 'goalToAction',
       },
 
-      // 心理健康到具体实践的连接
+      // Connections from mental health to specific practices
       {
         id: 'e-mental-meditation',
         source: 'mental-wellbeing',
@@ -194,10 +194,9 @@ const App: React.FC = () => {
         type: 'goalToAction',
       },
 
-
     ];
 
-    // 初始化数据
+    // Initialize data
     initializeWithData(initialNodes, initialEdges);
   }, [initializeWithData]);
 

@@ -10,7 +10,7 @@ export default function Inspector() {
   const deleteNode = useFlowStore((s) => s.deleteNode)
   const deleteEdge = useFlowStore((s) => s.deleteEdge)
 
-  // 判断选中的是节点还是边
+  // Determine if selected item is a node or edge
   const selectedNode = nodes.find((n) => n.id === selectedId)
   const selectedEdge = edges.find((e) => e.id === selectedId)
 
@@ -18,15 +18,15 @@ export default function Inspector() {
     return (
       <div className={styles.noSelection}>
         <div className={styles.noSelectionIcon}>📌</div>
-        <div className={styles.noSelectionTitle}>未选中任何元素</div>
+        <div className={styles.noSelectionTitle}>No Element Selected</div>
         <div className={styles.noSelectionText}>
-          请在画布中点击一个节点或连接线以查看和编辑其属性
+          Click on a node or edge in the canvas to view and edit its properties
         </div>
       </div>
     )
   }
 
-  // 如果选中的是边
+  // If selected item is an edge
   if (selectedEdge) {
     const sourceNode = nodes.find(n => n.id === selectedEdge.source)
     const targetNode = nodes.find(n => n.id === selectedEdge.target)
@@ -34,14 +34,14 @@ export default function Inspector() {
     return (
       <div className={styles.inspector}>
         <div className={styles.header}>
-          <h4 className={styles.title}>连接线属性</h4>
+          <h4 className={styles.title}>Edge Properties</h4>
           <div className={styles.elementId}>ID: {selectedEdge.id}</div>
         </div>
 
         <div className={styles.content}>
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              连接类型
+              Edge Type
               <div className={styles.readonlyField}>
                 {selectedEdge.type || 'default'}
               </div>
@@ -50,7 +50,7 @@ export default function Inspector() {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              来源节点
+              Source Node
               <div className={styles.readonlyField}>
                 {sourceNode ? sourceNode.data.title : selectedEdge.source}
               </div>
@@ -59,7 +59,7 @@ export default function Inspector() {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              目标节点
+              Target Node
               <div className={styles.readonlyField}>
                 {targetNode ? targetNode.data.title : selectedEdge.target}
               </div>
@@ -68,18 +68,18 @@ export default function Inspector() {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              连接线状态
+              Edge Status
               <div className={styles.edgeStatus}>
                 <div className={styles.statusItem}>
-                  <span className={styles.statusLabel}>动画:</span>
+                  <span className={styles.statusLabel}>Animation:</span>
                   <span className={`${styles.statusValue} ${selectedEdge.animated ? styles.animated : ''}`}>
-                    {selectedEdge.animated ? '开启' : '关闭'}
+                    {selectedEdge.animated ? 'On' : 'Off'}
                   </span>
                 </div>
                 <div className={styles.statusItem}>
-                  <span className={styles.statusLabel}>连线:</span>
+                  <span className={styles.statusLabel}>Connection:</span>
                   <span className={styles.statusValue}>
-                    {selectedEdge.sourceHandle ? '自定义' : '默认'}
+                    {selectedEdge.sourceHandle ? 'Custom' : 'Default'}
                   </span>
                 </div>
               </div>
@@ -90,12 +90,12 @@ export default function Inspector() {
             <button
               className={styles.deleteButton}
               onClick={() => {
-                if (window.confirm('确定要删除这个连接线吗？')) {
+                if (window.confirm('Are you sure you want to delete this edge?')) {
                   deleteEdge(selectedEdge.id)
                 }
               }}
             >
-              删除连接线
+              Delete Edge
             </button>
           </div>
         </div>
@@ -103,19 +103,19 @@ export default function Inspector() {
     )
   }
 
-  // 如果选中的是节点
+  // If selected item is a node
   if (selectedNode) {
     return (
       <div className={styles.inspector}>
         <div className={styles.header}>
-          <h4 className={styles.title}>节点属性</h4>
+          <h4 className={styles.title}>Node Properties</h4>
           <div className={styles.elementId}>ID: {selectedNode.id}</div>
         </div>
 
         <div className={styles.content}>
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              标题
+              Title
               <input
                 type="text"
                 className={styles.input}
@@ -123,21 +123,21 @@ export default function Inspector() {
                 onChange={(e) =>
                   updateNode(selectedNode.id, { title: e.target.value })
                 }
-                placeholder="输入节点标题"
+                placeholder="Enter node title"
               />
             </label>
           </div>
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              描述
+              Description
               <textarea
                 className={styles.textarea}
                 value={selectedNode.data.description || ''}
                 onChange={(e) =>
                   updateNode(selectedNode.id, { description: e.target.value })
                 }
-                placeholder="输入节点描述"
+                placeholder="Enter node description"
                 rows={3}
               />
             </label>
@@ -145,19 +145,19 @@ export default function Inspector() {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              节点类型
+              Node Type
               <div className={styles.readonlyField}>
-                {selectedNode.data.type || '默认'}
+                {selectedNode.data.type || 'Default'}
               </div>
             </label>
           </div>
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              所属层级
+              Layer
               <div className={styles.readonlyField}>
-                {selectedNode.data.layer === 'layer1' ? '核心目的' :
-                 selectedNode.data.layer === 'layer2' ? '主要目标' : '基础'}
+                {selectedNode.data.layer === 'layer1' ? 'Core Purpose' :
+                 selectedNode.data.layer === 'layer2' ? 'Major Goals' : 'Foundations'}
               </div>
             </label>
           </div>
@@ -165,7 +165,7 @@ export default function Inspector() {
           {selectedNode.data.weight !== undefined && (
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                权重
+                Weight
                 <div className={styles.weightContainer}>
                   <input
                     type="range"
@@ -187,12 +187,12 @@ export default function Inspector() {
             <button
               className={styles.deleteButton}
               onClick={() => {
-                if (window.confirm('确定要删除这个节点吗？')) {
+                if (window.confirm('Are you sure you want to delete this node?')) {
                   deleteNode(selectedNode.id)
                 }
               }}
             >
-              删除节点
+              Delete Node
             </button>
           </div>
         </div>

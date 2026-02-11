@@ -5,11 +5,11 @@ import styles from './Snapshot.module.css';
 const Snapshot: React.FC = () => {
   const [selectedSnapshot, setSelectedSnapshot] = useState<string>('');
 
-  // 从store中获取快照数据和方法
+  // Get snapshot data and methods from store
   const snapshots = useFlowStore((s) => s.snapshots);
   const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
 
-  // 格式化时间显示
+  // Format time display
   const formatSnapshotTime = (iso: string) => {
     const d = new Date(iso);
     const now = new Date();
@@ -28,11 +28,11 @@ const Snapshot: React.FC = () => {
       d.getDate() === yesterday.getDate();
 
     if (isSameDay) {
-      return `今日`;
+      return `Today`;
     }
 
     if (isYesterday) {
-      return `昨天 `;
+      return `Yesterday`;
     }
 
     const date = d.toLocaleDateString([], {
@@ -43,17 +43,17 @@ const Snapshot: React.FC = () => {
     return `${date}`;
   };
 
-  // 处理快照选择
+  // Handle snapshot selection
   const handleSnapshotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const snapshotId = parseInt(e.target.value);
     if (!isNaN(snapshotId)) {
       setSelectedSnapshot(e.target.value);
       loadSnapshot(snapshotId);
-      console.log('加载快照:', snapshotId);
+      console.log('Load snapshot:', snapshotId);
     }
   };
 
-  // 如果有快照，默认选中最新的
+  // Select the latest snapshot by default if snapshots exist
   React.useEffect(() => {
     if (snapshots.length > 0 && !selectedSnapshot) {
       const latestSnapshot = snapshots[snapshots.length - 1];
@@ -64,18 +64,18 @@ const Snapshot: React.FC = () => {
   return (
     <div className={styles.snapshotSection}>
       <div className={styles.snapshotRow}>
-        <div className={styles.snapshotLabel}>当前快照:</div>
+        <div className={styles.snapshotLabel}>Current Snapshot:</div>
         <select
           className={styles.snapshotDropdown}
           value={selectedSnapshot}
           onChange={handleSnapshotChange}
         >
           {snapshots.length === 0 ? (
-            <option value="">暂无快照</option>
+            <option value="">No snapshots</option>
           ) : (
             snapshots.slice().reverse().map((snapshot) => (
               <option key={snapshot.id} value={snapshot.id.toString()}>
-                {formatSnapshotTime(snapshot.createdAt)} - {snapshot.nodes.length}个节点
+                {formatSnapshotTime(snapshot.createdAt)} - {snapshot.nodes.length} nodes
               </option>
             ))
           )}

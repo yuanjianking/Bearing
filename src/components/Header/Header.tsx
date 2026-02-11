@@ -7,7 +7,7 @@ const Header: React.FC = () => {
     <div className={styles.header}>
       <div className={styles.logo}>
         <FaSitemap className={styles.logoIcon} />
-        <h1>承重</h1>
+        <h1>Bearing</h1>
       </div>
     </div>
   );

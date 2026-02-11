@@ -15,7 +15,7 @@ export default function GoalToActionEdge(props: EdgeProps) {
       path={edgePath}
       markerEnd={props.markerEnd}
       style={{
-        stroke: '#3db393', // 绿色
+        stroke: '#3db393',
         strokeWidth: 2,
         strokeDasharray: 'none',
       }}

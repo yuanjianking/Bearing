@@ -13,8 +13,7 @@ import { applyNodeChanges, applyEdgeChanges, addEdge as rfAddEdge } from 'reactf
 import { nanoid } from 'nanoid'
 import type { NodeData } from '../types/flow'
 
-
-// Zustand store 类型
+// Zustand store types
 interface FlowSnapshot {
   id: number
   createdAt: string
@@ -46,7 +45,6 @@ interface FlowStore {
   initializeWithData: (initialNodes: Node<NodeData>[], initialEdges: Edge[]) => void
 }
 
-
 export const useFlowStore = create<FlowStore>((set) => ({
   nodes: [],
 
@@ -56,29 +54,28 @@ export const useFlowStore = create<FlowStore>((set) => ({
 
   selectedId: null,
 
-  // 设置选中节点
+  // Set selected node
   setSelectedId: (id) => set({ selectedId: id }),
 
-  // 节点变化回调
+  // Node change callback
   onNodesChange: (changes: NodeChange[]) =>
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
     })),
 
-  // 边变化回调
+  // Edge change callback
   onEdgesChange: (changes: EdgeChange[]) =>
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
     })),
 
-  // 连线回调 - 修改为接受Connection或Edge
-  // useFlowStore.ts
+  // Connect callback - modified to accept Connection or Edge
   onConnect: (edge: Edge) =>
     set((state) => {
-      // 检查是否为有效的Edge
+      // Check if it's a valid Edge
       if (!edge.source || !edge.target) return state;
 
-      // 确保有id
+      // Ensure it has an id
       const finalEdge = {
         ...edge,
         id: edge.id || nanoid(),
@@ -90,7 +87,7 @@ export const useFlowStore = create<FlowStore>((set) => ({
       };
     }),
 
-  // 新增节点
+  // Add node
   addNode: (node: Node<NodeData>) =>
     set((state) => ({
       nodes: [
@@ -99,7 +96,7 @@ export const useFlowStore = create<FlowStore>((set) => ({
       ],
     })),
 
-  // 更新节点 data
+  // Update node data
   updateNode: (id: string, data: Partial<NodeData>) =>
     set((state) => ({
       nodes: state.nodes.map((n) =>
@@ -107,7 +104,7 @@ export const useFlowStore = create<FlowStore>((set) => ({
       ),
     })),
 
-  // 更新边属性
+  // Update edge properties
   updateEdge: (id: string, updates: Partial<Edge>) =>
     set((state) => ({
       edges: state.edges.map((edge) =>
@@ -115,7 +112,7 @@ export const useFlowStore = create<FlowStore>((set) => ({
       ),
     })),
 
-  // 删除节点及其相关连线
+  // Delete node and its related connections
   deleteNode: (id: string) =>
     set((state) => ({
       nodes: state.nodes.filter((n) => n.id !== id),
@@ -125,36 +122,37 @@ export const useFlowStore = create<FlowStore>((set) => ({
       selectedId: null,
     })),
 
-  // 删除边
+  // Delete edge
   deleteEdge: (id: string) =>
     set((state) => ({
       edges: state.edges.filter((edge) => edge.id !== id),
     })),
 
-  // 保存当前流程快照
+  // Save current flow snapshot
   saveSnapshot: () =>
     set((state) => {
-    // 生成今天的日期字符串（YYYY-MM-DD格式）
-    const todayStr = new Date().toISOString().split('T')[0]
+      // Generate today's date string (YYYY-MM-DD format)
+      const todayStr = new Date().toISOString().split('T')[0]
 
-    // 过滤掉今天已存在的快照
-    const filteredSnapshots = state.snapshots.filter(
-      (snap) => snap.createdAt.split('T')[0] !== todayStr
-    )
+      // Filter out snapshots already created today
+      const filteredSnapshots = state.snapshots.filter(
+        (snap) => snap.createdAt.split('T')[0] !== todayStr
+      )
 
-    return {
-      snapshots: [
-        ...filteredSnapshots,
-        {
-          id: Date.now(), // 仍然使用时间戳作为唯一id
-          createdAt: new Date().toISOString(), // 保留完整ISO字符串用于排序
-          nodes: JSON.parse(JSON.stringify(state.nodes)),
-          edges: JSON.parse(JSON.stringify(state.edges)),
-        },
-      ],
-    }}),
+      return {
+        snapshots: [
+          ...filteredSnapshots,
+          {
+            id: Date.now(), // Still use timestamp as unique id
+            createdAt: new Date().toISOString(), // Keep full ISO string for sorting
+            nodes: JSON.parse(JSON.stringify(state.nodes)),
+            edges: JSON.parse(JSON.stringify(state.edges)),
+          },
+        ],
+      }
+    }),
 
-  // 加载指定快照
+  // Load specified snapshot
   loadSnapshot: (snapshotId: number) =>
     set((state) => {
       const snap = state.snapshots.find((s) => s.id === snapshotId)
@@ -167,10 +165,10 @@ export const useFlowStore = create<FlowStore>((set) => ({
       }
     }),
 
-  // 使用初始数据初始化节点和边
+  // Initialize nodes and edges with initial data
   initializeWithData: (initialNodes, initialEdges) =>
-      set({
-        nodes: initialNodes,
-        edges: initialEdges,
+    set({
+      nodes: initialNodes,
+      edges: initialEdges,
     }),
 }))

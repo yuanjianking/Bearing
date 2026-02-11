@@ -22,20 +22,20 @@ export interface TimelineEntry {
     };
   };
   metadata?: {
-    // 通用字段
+    // Common fields
     description?: string;
     tags?: string[];
 
-    // 结构切换特定
+    // Structure switch specific
     previousStructure?: string;
     newStructure?: string;
 
-    // 封存特定
+    // Archive specific
     completionRate?: number;
     archivedReason?: string;
     emotions?: string[];
 
-    // 封章特定
+    // Seal chapter specific
     chapterTitle?: string;
     chapterSummary?: string;
     nextChapterPlan?: string;
@@ -45,8 +45,8 @@ export interface TimelineEntry {
 
 export interface TimelineMarker {
   id: string;
-  date: string; // YYYY-MM--DD
-  position: string; // CSS位置百分比
+  date: string; // YYYY-MM-DD
+  position: string; // CSS position percentage
   type: 'past' | 'current' | 'future';
   entryId?: string;
   data?: TimelineEntry;

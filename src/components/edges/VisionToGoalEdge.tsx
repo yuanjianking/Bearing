@@ -15,7 +15,7 @@ export default function VisionToGoalEdge(props: EdgeProps) {
       path={edgePath}
       markerEnd={props.markerEnd}
       style={{
-        stroke: '#667eea', // 蓝色
+        stroke: '#667eea',
         strokeWidth: 3,
         strokeDasharray: 'none',
       }}

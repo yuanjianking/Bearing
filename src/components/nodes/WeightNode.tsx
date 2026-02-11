@@ -4,20 +4,20 @@ import type { NodeData } from '../../types/flow';
 import styles from './WeightNode.module.css';
 
 export default function WeightNode({ data, selected }: NodeProps<NodeData>) {
-  // 确保weight有默认值
+  // Ensure weight has default value
   const weight = data.weight || 1;
-  const safeWeight = Math.max(1, Math.min(10, weight)); // 确保在1-10范围内
+  const safeWeight = Math.max(1, Math.min(10, weight)); // Ensure within 1-10 range
 
-  // 根据节点类型和权重确定样式
+  // Determine style based on node type and weight
   const getNodeStyle = () => {
-    // 基础样式 - 现在高度50px
+    // Base style - now 50px height
     const baseStyle = {
       borderColor: selected ? '#1677ff' : '#999',
-      width: '120px',
+      width: '160px',
       height: '50px',
     };
 
-    // 根据类型决定颜色
+    // Determine color based on type
     switch (data.type) {
       case 'goal':
         return {
@@ -78,26 +78,26 @@ export default function WeightNode({ data, selected }: NodeProps<NodeData>) {
         }}
         title={data.description}
       >
-        {/* 节点头部 - 类型标签和权重 */}
+        {/* Node Header - Type label and weight */}
         <div className={styles.nodeHeader}>
           <span className={styles.typeBadge}>
-            {data.type === 'goal' ? '核心' :
-             data.type === 'task' ? '目标' :
-             data.type === 'constraint' ? '约束' : '资源'}
+            {data.type === 'goal' ? 'Core' :
+             data.type === 'task' ? 'Goal' :
+             data.type === 'constraint' ? 'Constraint' : 'Resource'}
           </span>
           <span className={styles.weightBadge}>
             {safeWeight}
           </span>
         </div>
 
-        {/* 标题区域 */}
+        {/* Title Area */}
         <div className={styles.titleContainer}>
           <span className={styles.title}>
             {data.title}
           </span>
         </div>
 
-        {/* 权重指示条 */}
+        {/* Weight Indicator Bar */}
         <div className={styles.weightBarContainer}>
           <div
             className={styles.weightBar}
@@ -108,7 +108,7 @@ export default function WeightNode({ data, selected }: NodeProps<NodeData>) {
           />
         </div>
 
-        {/* 连接点 */}
+        {/* Handles */}
         <Handle
           type="target"
           position={Position.Top}
@@ -131,8 +131,8 @@ export default function WeightNode({ data, selected }: NodeProps<NodeData>) {
         />
       </div>
 
-      {/* 选中时的描述工具提示 */}
-      {selected && data.description && data.description !== '（无描述）' && (
+      {/* Description tooltip when selected */}
+      {selected && data.description && data.description !== '(No description)' && (
         <div className={styles.descriptionTooltip}>
           {data.description}
         </div>

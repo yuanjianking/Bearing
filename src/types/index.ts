@@ -1,6 +1,4 @@
-// types/index.ts 或相关类型定义文件
-
-// 当前结构的类型
+// Current structure type
 export interface CurrentStructure {
   exists: boolean;
   name?: string;
@@ -9,14 +7,14 @@ export interface CurrentStructure {
   status?: string;
 }
 
-// 过往历程的类型
+// Past journey type
 export interface PastJourney {
   span: string;
   stages: string[];
   turningPoints: string;
 }
 
-// 快照存档的类型
+// Snapshot archive type
 export interface SnapshotArchive {
   count: string;
   recent: string;
@@ -25,7 +23,7 @@ export interface SnapshotArchive {
   milestones: string;
 }
 
-// 已封存章节的类型
+// Sealed chapter type
 export interface SealedChapter {
   count: string;
   reasons: string;
@@ -33,7 +31,7 @@ export interface SealedChapter {
   note: string;
 }
 
-// 联合类型
+// Union type
 export type StructureContent =
   | CurrentStructure
   | PastJourney
@@ -51,7 +49,7 @@ export interface StatItem {
   value: string;
 }
 
-// 洞察项类型
+// Insight item type
 export interface InsightItem {
   id: number;
   type: 'persistent' | 'focus' | 'update' | 'system' | 'connection' | 'new-node' | 'modification';

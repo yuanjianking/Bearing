@@ -18,28 +18,27 @@ const nodeTypes: NodeTypes = {
 };
 
 const edgeTypes: EdgeTypes = {
-  visionToGoal: VisionToGoalEdge,  // 愿景→目标（蓝色粗线）
-  goalToAction: GoalToActionEdge,  // 目标→行动（绿色中线）
-  actionToAction: ActionToActionEdge, // 基础 → 基础（橙色点虚线）
+  visionToGoal: VisionToGoalEdge,  // Vision → Goal (thick blue line)
+  goalToAction: GoalToActionEdge,  // Goal → Action (medium green line)
+  actionToAction: ActionToActionEdge, // Base → Base (orange dotted dashed line)
 };
 
-
 const CenterPanel: React.FC = () => {
-  // 从 store 中获取真实数据和方法
+  // Get actual data and methods from store
   const nodes = useFlowStore((s) => s.nodes);
   const edges = useFlowStore((s) => s.edges);
   const onNodesChange = useFlowStore((s) => s.onNodesChange);
   const onEdgesChange = useFlowStore((s) => s.onEdgesChange);
   const onConnect = useFlowStore((s) => s.onConnect);
   const addNode = useFlowStore((s) => s.addNode);
-  const setSelectedId = useFlowStore((s) => s.setSelectedId)
+  const setSelectedId = useFlowStore((s) => s.setSelectedId);
 
   const layersRef = useRef<HTMLDivElement>(null);
 
-  // 添加状态存储容器尺寸
+  // State to store container dimensions
   const [containerSize, setContainerSize] = React.useState({ width: 800, height: 600 });
 
-  // 使用 useEffect 监听容器尺寸变化
+  // Use useEffect to listen to container size changes
   useEffect(() => {
     if (!layersRef.current) return;
 
@@ -53,14 +52,14 @@ const CenterPanel: React.FC = () => {
       }
     };
 
-    // 初始更新
+    // Initial update
     updateSize();
 
-    // 使用 ResizeObserver 监听尺寸变化
+    // Use ResizeObserver to listen to size changes
     const resizeObserver = new ResizeObserver(updateSize);
     resizeObserver.observe(layersRef.current);
 
-    // 清理函数
+    // Cleanup function
     return () => {
       if (layersRef.current) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,12 +68,12 @@ const CenterPanel: React.FC = () => {
     };
   }, []);
 
-  // 计算每层的边界 - 基于flex比例
+  // Calculate layer boundaries based on flex ratio
   const layerBounds = React.useMemo(() => {
     const totalHeight = containerSize.height;
-    // 按照flex比例分配：1:2:3
-    const layer1Height = totalHeight * (1 / 6);    // 1份
-    const layer2Height = totalHeight * (2 / 6);    // 2份
+    // Flex ratio distribution: 1:2:3
+    const layer1Height = totalHeight * (1 / 6);    // 1 part
+    const layer2Height = totalHeight * (2 / 6);    // 2 parts
 
     return {
       layer1: {
@@ -97,14 +96,14 @@ const CenterPanel: React.FC = () => {
       },
       width: containerSize.width,
       minX: 10,
-      maxX: containerSize.width - 160, // 考虑节点宽度
+      maxX: containerSize.width - 160, // Consider node width
     };
   }, [containerSize]);
 
-  // 创建包装的节点变化处理函数
+  // Wrapper for node change handling
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // 如果有节点拖拽变化，先应用边界限制
+      // Apply boundary constraints for node drag changes
       const filteredChanges = changes.map(change => {
         if (change.type === 'position' && change.dragging && change.position) {
           const node = nodes.find(n => n.id === change.id);
@@ -119,19 +118,19 @@ const CenterPanel: React.FC = () => {
               const { position } = change;
               let { x, y } = position;
 
-              // 节点实际尺寸
+              // Node dimensions
               const NODE_WIDTH = 120;
               const NODE_HEIGHT = 10;
-              const MARGIN = 5; // 边距
+              const MARGIN = 5;
 
-              // 限制x坐标（考虑节点宽度和边距）
+              // Constrain x coordinate (consider node width and margin)
               const minX = MARGIN;
               const maxX = layerBounds.width - NODE_WIDTH - MARGIN;
               x = Math.max(minX, Math.min(maxX, x));
 
-              // 限制y坐标（考虑节点高度和边距）
-              const minY = bounds.minY + MARGIN; // 增加边距
-              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN; // 考虑节点高度
+              // Constrain y coordinate (consider node height and margin)
+              const minY = bounds.minY + MARGIN;
+              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN;
               y = Math.max(minY, Math.min(maxY, y));
 
               return {
@@ -144,7 +143,7 @@ const CenterPanel: React.FC = () => {
         return change;
       });
 
-      // 调用 store 中的 onNodesChange
+      // Call store's onNodesChange
       onNodesChange(filteredChanges);
     },
     [nodes, onNodesChange, layerBounds]
@@ -154,12 +153,12 @@ const CenterPanel: React.FC = () => {
     (event: React.MouseEvent) => {
       if (!layersRef.current) return;
 
-      // 1. 获取相对于容器的坐标
+      // 1. Get coordinates relative to container
       const rect = layersRef.current.getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
 
-      // 2. 判断属于哪一层
+      // 2. Determine which layer
       let layer: 'layer1' | 'layer2' | 'layer3' | null = null;
 
       if (y >= layerBounds.layer1.yStart && y <= layerBounds.layer1.yEnd) {
@@ -172,23 +171,23 @@ const CenterPanel: React.FC = () => {
 
       if (!layer) return;
 
-      // 3. 位置修正（确保不越界）
+      // 3. Adjust position (ensure within boundaries)
       const bounds = layerBounds[layer];
 
       if (bounds) {
-              // 节点实际尺寸
-              const NODE_WIDTH = 120;
+              // Node dimensions
+              const NODE_WIDTH =  160;
               const NODE_HEIGHT = 20;
-              const MARGIN = 5; // 边距
+              const MARGIN = 5;
 
-              // 限制x坐标（考虑节点宽度和边距）
+              // Constrain x coordinate (consider node width and margin)
               const minX = MARGIN;
               const maxX = layerBounds.width - NODE_WIDTH - MARGIN;
               x = Math.max(minX, Math.min(maxX, x));
 
-              // 限制y坐标（考虑节点高度和边距）
-              const minY = bounds.minY + MARGIN; // 增加边距
-              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN; // 考虑节点高度
+              // Constrain y coordinate (consider node height and margin)
+              const minY = bounds.minY + MARGIN;
+              const maxY = bounds.maxY - NODE_HEIGHT - MARGIN;
               y = Math.max(minY, Math.min(maxY, y));
       }
       const position = {
@@ -196,26 +195,26 @@ const CenterPanel: React.FC = () => {
         y
       };
 
-      // 4. 根据 layer 设置 title 和 type
+      // 4. Set title and type based on layer
       let title = '';
-      let type: 'goal' | 'task' | 'constraint' | 'resource' = 'task'; // 默认值
+      let type: 'goal' | 'task' | 'constraint' | 'resource' = 'task'; // Default value
 
       switch (layer) {
         case 'layer1':
-          title = '新的核心节点';
+          title = 'New Core Node';
           type = 'goal';
           break;
         case 'layer2':
-          title = '新的目标节点';
+          title = 'New Goal Node';
           type = 'task';
           break;
         case 'layer3':
-          title = '新的基础节点';
+          title = 'New Base Node';
           type = 'constraint';
           break;
       }
 
-      // 5. 创建新节点
+      // 5. Create new node
       const newNode = {
         id: nanoid(),
         type: 'weight' as const,
@@ -229,7 +228,7 @@ const CenterPanel: React.FC = () => {
         },
       };
 
-      // 5. 添加节点到 store
+      // 5. Add node to store
       addNode(newNode);
     },
     [layerBounds, addNode]
@@ -247,21 +246,20 @@ const CenterPanel: React.FC = () => {
       const sourceLayer = sourceNode.data.layer;
       const targetLayer = targetNode.data.layer;
 
-
-     // 1. 禁止同层连接（除了layer3）
+     // 1. Prevent same-layer connections (except layer3)
       if (sourceLayer === targetLayer && sourceLayer !== 'layer3') {
         return;
       }
 
-      // 核心目的 → 主要目标
+      // Core purpose → Main goal
       if (sourceLayer === 'layer1' && targetLayer === 'layer2') {
         edgeType = 'visionToGoal';
       }
-      // 主要目标 → 基础
+      // Main goal → Base
       else if (sourceLayer === 'layer2' && targetLayer === 'layer3') {
         edgeType = 'goalToAction';
       }
-      // 基础 → 基础（同层连接）
+      // Base → Base (same layer connection)
       else if (sourceLayer === 'layer3' && targetLayer === 'layer3') {
         edgeType = 'actionToAction';
       }
@@ -270,7 +268,7 @@ const CenterPanel: React.FC = () => {
     }
     }
 
-    // 创建新边
+    // Create new edge
     const edge: Edge = {
       id: nanoid(),
       type: edgeType,
@@ -287,24 +285,24 @@ const CenterPanel: React.FC = () => {
     <div className={`${styles.centerPanel} ${styles.panel}`}>
       <div className={styles.centerPanelContent}>
         <div ref={layersRef} className={styles.structureLayers}>
-          {/* 三层结构 */}
+          {/* Three-layer structure */}
           <div data-layer="layer1" className={`${styles.layer} ${styles.layer1}`}>
             <div className={styles.layerHeader}>
-              <div className={styles.layerTitle}>核心目的</div>
+              <div className={styles.layerTitle}>Core Purpose</div>
             </div>
           </div>
           <div data-layer="layer2" className={`${styles.layer} ${styles.layer2}`}>
             <div className={styles.layerHeader}>
-              <div className={styles.layerTitle}>主要目标</div>
+              <div className={styles.layerTitle}>Major Goals</div>
             </div>
           </div>
           <div data-layer="layer3" className={`${styles.layer} ${styles.layer3}`}>
             <div className={styles.layerHeader}>
-              <div className={styles.layerTitle}>基础</div>
+              <div className={styles.layerTitle}>Foundations</div>
             </div>
           </div>
 
-          {/* ReactFlow容器 */}
+          {/* ReactFlow Container */}
           <div
             style={{
               position: 'absolute',
@@ -325,16 +323,16 @@ const CenterPanel: React.FC = () => {
               onEdgeClick={(_, node) => setSelectedId(node.id)}
               onPaneClick={() => setSelectedId(null)}
               onDoubleClick={handlePaneDoubleClick}
-              // 关键：完全禁用视窗拖拽，只允许节点拖拽
+              // Critical: Completely disable viewport dragging, only allow node dragging
               panOnDrag={false}
               panOnScroll={false}
 
-              // 禁止缩放
+              // Disable zoom
               zoomOnScroll={false}
               zoomOnPinch={false}
               zoomOnDoubleClick={false}
 
-              // 固定视窗范围
+              // Fixed viewport range
               translateExtent={[
                 [0, 0],
                 [containerSize.width, containerSize.height]
@@ -343,7 +341,7 @@ const CenterPanel: React.FC = () => {
               maxZoom={2}
               defaultViewport={{ x: 0, y: 0, zoom: 1 }}
 
-              // 其他配置
+              // Other configurations
               nodesDraggable={true}
               nodesConnectable={true}
               elementsSelectable={true}
