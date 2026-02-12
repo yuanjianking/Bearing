@@ -322,7 +322,7 @@
   opacity: 0.8;
 }
 
-/* 响应式调整 */
+
 @media (max-width: 768px) {
   .inspector {
     border-radius: 8px;
@@ -345,7 +345,7 @@
   }
 }
 
-/* 动画效果 */
+
 .inspector {
   animation: fadeIn 0.3s ease-out;
 }

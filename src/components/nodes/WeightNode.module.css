@@ -31,7 +31,6 @@
   box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 节点头部 */
 .nodeHeader {
   display: flex;
   justify-content: space-between;
@@ -58,7 +57,6 @@
   text-align: center;
 }
 
-/* 标题区域 - 修复line-clamp兼容性 */
 .titleContainer {
   flex: 1;
   display: flex;
@@ -71,17 +69,16 @@
   line-height: 1.3;
   color: #1a1a1a;
 
-  /* 标准属性 line-clamp */
+
   display: -webkit-box;
   display: -moz-box;
   display: box;
 
-  /* 标准属性 */
+
   -webkit-line-clamp: 2;
   -moz-line-clamp: 2;
   line-clamp: 2;
 
-  /* 标准属性 */
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
   box-orient: vertical;
@@ -91,7 +88,7 @@
   max-height: 32px;
 }
 
-/* 权重指示条 */
+
 .weightBarContainer {
   height: 3px;
   background: rgba(0, 0, 0, 0.05);
@@ -105,7 +102,7 @@
   transition: width 0.3s ease;
 }
 
-/* 描述工具提示 */
+
 .descriptionTooltip {
   position: absolute;
   top: calc(100% + 8px);
@@ -140,7 +137,7 @@
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* 连接点样式 */
+
 .handle {
   opacity: 0;
   border: 2px solid white;
@@ -156,7 +153,6 @@
   opacity: 1;
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   .weightNode {
     width: 110px;

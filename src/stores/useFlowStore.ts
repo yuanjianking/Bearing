@@ -12,19 +12,12 @@ import type {
 import { applyNodeChanges, applyEdgeChanges, addEdge as rfAddEdge } from 'reactflow'
 import { nanoid } from 'nanoid'
 import type { NodeData } from '../types/flow'
-
-// Zustand store types
-interface FlowSnapshot {
-  id: number
-  createdAt: string
-  nodes: Node<NodeData>[]
-  edges: Edge[]
-}
+import { useStructureStore } from './useStructureStore'
 
 interface FlowStore {
   nodes: Node<NodeData>[]
   edges: Edge[]
-  snapshots: FlowSnapshot[]
+
   selectedId: string | null
 
   setSelectedId: (id: string | null) => void
@@ -40,12 +33,14 @@ interface FlowStore {
   deleteEdge: (id: string) => void
 
   saveSnapshot: () => void
-  loadSnapshot: (snapshotId: number) => void
+  loadSnapshot: (snapshotId: string) => void
 
   initializeWithData: (initialNodes: Node<NodeData>[], initialEdges: Edge[]) => void
+
+   syncToStructure: () => void
 }
 
-export const useFlowStore = create<FlowStore>((set) => ({
+export const useFlowStore = create<FlowStore>((set, get) => ({
   nodes: [],
 
   edges: [],
@@ -59,15 +54,28 @@ export const useFlowStore = create<FlowStore>((set) => ({
 
   // Node change callback
   onNodesChange: (changes: NodeChange[]) =>
-    set((state) => ({
-      nodes: applyNodeChanges(changes, state.nodes),
-    })),
+    set((state) => {
+      const newNodes = applyNodeChanges(changes, state.nodes)
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { nodes: newNodes }
+    }),
+
 
   // Edge change callback
   onEdgesChange: (changes: EdgeChange[]) =>
-    set((state) => ({
-      edges: applyEdgeChanges(changes, state.edges),
-    })),
+    set((state) => {
+      const newEdges = applyEdgeChanges(changes, state.edges)
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { edges: newEdges }
+    }),
 
   // Connect callback - modified to accept Connection or Edge
   onConnect: (edge: Edge) =>
@@ -82,85 +90,115 @@ export const useFlowStore = create<FlowStore>((set) => ({
         animated: edge.animated !== undefined ? edge.animated : true,
       };
 
-      return {
-        edges: rfAddEdge(finalEdge, state.edges),
-      };
+      const newEdges = rfAddEdge(finalEdge, state.edges)
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { edges: newEdges }
     }),
 
   // Add node
   addNode: (node: Node<NodeData>) =>
-    set((state) => ({
-      nodes: [
-        ...state.nodes,
-        node,
-      ],
-    })),
+     set((state) => {
+      const newNodes = [...state.nodes, node]
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { nodes: newNodes }
+    }),
 
   // Update node data
   updateNode: (id: string, data: Partial<NodeData>) =>
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
+   set((state) => {
+      const newNodes = state.nodes.map((n) =>
         n.id === id ? { ...n, data: { ...n.data, ...data } } : n
-      ),
-    })),
+      )
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { nodes: newNodes }
+    }),
 
   // Update edge properties
   updateEdge: (id: string, updates: Partial<Edge>) =>
-    set((state) => ({
-      edges: state.edges.map((edge) =>
+    set((state) => {
+      const newEdges = state.edges.map((edge) =>
         edge.id === id ? { ...edge, ...updates } : edge
-      ),
-    })),
+      )
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { edges: newEdges }
+    }),
 
   // Delete node and its related connections
   deleteNode: (id: string) =>
-    set((state) => ({
-      nodes: state.nodes.filter((n) => n.id !== id),
-      edges: state.edges.filter(
+    set((state) => {
+      const newNodes = state.nodes.filter((n) => n.id !== id)
+      const newEdges = state.edges.filter(
         (e) => e.source !== id && e.target !== id
-      ),
-      selectedId: null,
-    })),
+      )
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return {
+        nodes: newNodes,
+        edges: newEdges,
+        selectedId: null,
+      }
+    }),
 
   // Delete edge
   deleteEdge: (id: string) =>
-    set((state) => ({
-      edges: state.edges.filter((edge) => edge.id !== id),
-    })),
+    set((state) => {
+      const newEdges = state.edges.filter((edge) => edge.id !== id)
+
+      setTimeout(() => {
+        get().syncToStructure()
+      }, 100)
+
+      return { edges: newEdges }
+    }),
 
   // Save current flow snapshot
   saveSnapshot: () =>
     set((state) => {
-      // Generate today's date string (YYYY-MM-DD format)
-      const todayStr = new Date().toISOString().split('T')[0]
+      get().syncToStructure()
 
-      // Filter out snapshots already created today
-      const filteredSnapshots = state.snapshots.filter(
-        (snap) => snap.createdAt.split('T')[0] !== todayStr
-      )
+      const structureStore = useStructureStore.getState()
+      const { currentStructureId, getCurrentStructure, saveSnapshot } = structureStore
 
-      return {
-        snapshots: [
-          ...filteredSnapshots,
-          {
-            id: Date.now(), // Still use timestamp as unique id
-            createdAt: new Date().toISOString(), // Keep full ISO string for sorting
-            nodes: JSON.parse(JSON.stringify(state.nodes)),
-            edges: JSON.parse(JSON.stringify(state.edges)),
-          },
-        ],
+      const targetStructure = currentStructureId ? getCurrentStructure() : null
+      if (!targetStructure) {
+        console.warn('无法保存快照：没有当前结构')
+        return state
       }
+      saveSnapshot()
+      return state
     }),
 
   // Load specified snapshot
-  loadSnapshot: (snapshotId: number) =>
-    set((state) => {
-      const snap = state.snapshots.find((s) => s.id === snapshotId)
+  loadSnapshot: (snapshotId: string) =>
+    set(() => {
+      const structureStore = useStructureStore.getState()
+      const snap = structureStore.snapshots.find((s) => s.id === snapshotId)
       if (!snap) return {}
 
+      const structure = snap.structure
+
       return {
-        nodes: snap.nodes,
-        edges: snap.edges,
+        nodes: JSON.parse(JSON.stringify(structure.nodes)),
+        edges: JSON.parse(JSON.stringify(structure.edges)),
         selectedId: null,
       }
     }),
@@ -171,4 +209,14 @@ export const useFlowStore = create<FlowStore>((set) => ({
       nodes: initialNodes,
       edges: initialEdges,
     }),
+
+  syncToStructure: () => {
+    const { nodes, edges } = get()
+    const structureStore = useStructureStore.getState()
+    const { currentStructureId, updateStructure} = structureStore
+
+    if (currentStructureId) {
+      updateStructure(currentStructureId, nodes, edges)
+    }
+  },
 }))

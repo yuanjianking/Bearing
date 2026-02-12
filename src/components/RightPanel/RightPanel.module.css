@@ -12,7 +12,6 @@
   gap: 25px;
 }
 
-/* 洞察分析区域 */
 .insightsSection {
   margin-bottom: 0;
 }
@@ -79,7 +78,6 @@
   font-size: 10px;
 }
 
-/* 反思记录和未来路径区域 */
 .actionsSection {
   background-color: #e8f4ff;
   border-radius: 12px;
@@ -164,14 +162,13 @@
   font-size: 14px;
 }
 
-/* 节点属性面板区域 */
 .inspectorSection {
   background-color: white;
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0eeff;
-  margin-top: auto; /* 让Inspector面板保持在底部 */
+  margin-top: auto;
 }
 
 @media (max-width: 1200px) {

@@ -19,18 +19,16 @@
   height: 100%;
 }
 
-/* 三层结构容器 */
+
 .structureLayers {
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 400px;
-  /* 使用更温和的渐变色 */
   background: linear-gradient(to bottom, #f7fbff, #d4e9ff);
 }
 
-/* 层通用样式 */
 .layer {
   display: flex;
   flex-direction: column;
@@ -71,8 +69,6 @@
   text-align: center;
 }
 
-/* 三层不同的高度和背景色 */
-/* 第一层：核心目的 - 非常浅的蓝色 */
 .layer1 {
   flex: 1;
   min-height: 100px;
@@ -82,24 +78,18 @@
 .layer1 .layerTitle {
   color: #4a6bc5;
 }
-
-/* 第二层：主要目标 - 浅蓝色 */
 .layer2 {
   flex: 2;
   min-height: 150px;
-  /* 使用更浅的蓝色 */
   background-color: rgba(245, 249, 255, 0.9);
 }
 
 .layer2 .layerTitle {
   color: #3a5ca9;
 }
-
-/* 第三层：基础 - 中等浅蓝色 */
 .layer3 {
   flex: 3;
   min-height: 200px;
-  /* 使用更浅的蓝色 */
   background-color: rgba(237, 244, 255, 0.9);
 }
 
@@ -107,7 +97,7 @@
   color: #2d4da6;
 }
 
-/* 响应式设计 */
+
 @media (max-width: 1200px) {
   .centerPanel {
     width: 100%;
@@ -135,7 +125,7 @@
   }
 }
 
-/* 小屏幕设备 */
+
 @media (max-width: 768px) {
   .panel {
     padding: 15px;

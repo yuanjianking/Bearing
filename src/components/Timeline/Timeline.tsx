@@ -14,15 +14,10 @@ const Timeline: React.FC = () => {
   const [selectedMarker, setSelectedMarker] = useState<string>('');
   const [snapshotTip, setSnapshotTip] = useState<string | null>(null);
 
-  const nodes = useFlowStore((s) => s.nodes);
-  const edges = useFlowStore((s) => s.edges);
-
   // Original saveSnapshot functionality
   const saveSnapshot = useFlowStore((s) => s.saveSnapshot);
   const snapshots = useFlowStore((s) => s.snapshots);
   const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
-  const initializeWithData = useFlowStore((s) => s.initializeWithData);
-  const setSelectedId = useFlowStore((s) => s.setSelectedId);
 
   // New timeline recording functionality
   const recordSnapshot = useTimelineStore((s) => s.recordSnapshot);
@@ -100,12 +95,6 @@ const Timeline: React.FC = () => {
   };
 
   const loadTimelineEntry = (entry: TimelineEntry) => {
-    // If entry has complete nodes and edges data, use directly
-    if (entry.nodes && entry.edges) {
-      initializeWithData(entry.nodes, entry.edges);
-      setSelectedId(null);
-      return;
-    }
 
     // Otherwise try to find matching snapshot from snapshots
     const snapshotId = findMatchingSnapshotId(entry);
@@ -116,32 +105,27 @@ const Timeline: React.FC = () => {
     }
   };
 
-  const findMatchingSnapshotId = (entry: TimelineEntry): number | null => {
-    // Find snapshot closest in time
+  const findMatchingSnapshotId = (entry: TimelineEntry): string | null => {
+    // Helper function to check if two dates are the same day
+    const isSameDay = (date1: Date, date2: Date): boolean => {
+      return date1.getFullYear() === date2.getFullYear() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getDate() === date2.getDate();
+    };
+
+    // Find snapshots from the same day
     const matchingSnapshots = snapshots.filter(snap => {
       const snapDate = new Date(snap.createdAt);
-      const entryDate = new Date(entry.timestamp || entry.createdAt);
+      const entryDate = new Date(entry.createdAt);
 
-      // Consider snapshots within 5 seconds as matching
-      const timeDiff = Math.abs(snapDate.getTime() - entryDate.getTime());
-      return timeDiff < 5000;
+      return isSameDay(snapDate, entryDate);
     });
 
     if (matchingSnapshots.length > 0) {
-      // Return the temporally closest snapshot
-      return matchingSnapshots.sort((a, b) => {
-        const aDiff = Math.abs(new Date(a.createdAt).getTime() - (entry.timestamp || new Date(entry.createdAt).getTime()));
-        const bDiff = Math.abs(new Date(b.createdAt).getTime() - (entry.timestamp || new Date(entry.createdAt).getTime()));
-        return aDiff - bDiff;
-      })[0].id;
-    }
-
-    // If no time-matched snapshot found, try content matching
-    for (const snap of snapshots) {
-      if (snap.nodes.length === entry.metrics?.nodeCount &&
-          snap.edges.length === entry.metrics?.edgeCount) {
-        return snap.id;
-      }
+      // Return the latest snapshot of the day
+      return matchingSnapshots.sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )[0].id;
     }
 
     return null;
@@ -173,11 +157,8 @@ const Timeline: React.FC = () => {
     const dateStr = now.toISOString().split('T')[0];
     const title = `Snapshot (${dateStr})`;
 
-    // Auto-generate description: system status overview
-    const description = `System status: ${nodes.length} nodes, ${edges.length} connections`;
-
     // Call timeline store's record snapshot method
-    recordSnapshot(title, description, nodes, edges);
+    recordSnapshot(title);
 
     setSnapshotTip(`📸 Snapshot recorded: ${title}`);
     setTimeout(() => setSnapshotTip(null), 1500);

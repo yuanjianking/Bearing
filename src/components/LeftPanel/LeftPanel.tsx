@@ -11,241 +11,162 @@ import {
   FaPlus,
   FaSync
 } from 'react-icons/fa';
-import type{ StructureItem, StatItem, StructureContent, PastJourney, SnapshotArchive, SealedChapter, CurrentStructure } from '../../types';
+
 import styles from './LeftPanel.module.css';
+import { useStructureStore } from '../../stores/useStructureStore';
+import { useFlowStore } from '../../stores/useFlowStore';
 
 const LeftPanel: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [newStructureName, setNewStructureName] = useState('');
 
-  // Current structure state management
-  const [currentStructure, setCurrentStructure] = useState<{
-    exists: boolean;
-    name?: string;
-    created?: string;
-    nodes?: number;
-  }>({
-    exists: false // Initial state: no structure
-  });
+
+  const structures = useStructureStore((s) => s.structures);
+  const currentStructureId = useStructureStore((s) => s.currentStructureId);
+  const createStructure = useStructureStore((s) => s.createStructure);
+  const hasCurrentStructure = useStructureStore((s) => s.hasCurrentStructure);
+  const snapshots = useStructureStore((s) => s.snapshots);
+
+  const currentStructure = structures.find(s => s.id === currentStructureId);
+
+  const initializeWithData = useFlowStore((s) => s.initializeWithData);
 
   // Past journeys state management
   const [pastJourneys, setPastJourneys] = useState<string[]>([]);
 
-  const structureItems: StructureItem[] = [
-    {
-      id: 'current-structure',
-      label: 'Current Structure',
-      content: currentStructure
-    },
-    {
-      id: 'snapshot-archive',
-      label: 'Snapshot Archive',
-      content: {
-        count: '27 snapshots',
-        recent: '"New Chapter Started" - Sep 12, 2024',
-        earliest: '"Initial Structure" - Mar 10, 2018',
-        autoSave: 'Weekly automatic snapshots',
-        milestones: 'Career transition in 2020, Health plan launch in 2022, Creative project start in 2024'
-      }
-    },
-    {
-      id: 'past-journeys',
-      label: 'Past Journeys',
-      content: {
-        span: pastJourneys.length > 0
-          ? `${pastJourneys[0].split('：')[0]} to present`
-          : 'No journeys yet',
-        stages: pastJourneys,
-        turningPoints: 'To be added'
-      }
-    },
-    {
-      id: 'sealed-chapters',
-      label: 'Sealed Chapters',
-      content: {
-        count: '5 chapters',
-        reasons: JSON.stringify([
-          'Student Life System (Sealed in 2020)',
-          'Entrepreneurship Attempt Structure (Sealed in 2022)',
-          'Health Challenge Plan (Sealed in 2023)'
-        ]),
-        time: 'Longest sealed for 4 years, shortest for 1 year',
-        note: 'Sealed chapters are read-only, can be viewed but not edited'
-      }
-    }
-  ];
 
-  const stats: StatItem[] = [
-    { label: 'Active Nodes', value: currentStructure.nodes?.toString() || '0' },
-    { label: 'Recent Changes', value: '0' },
-    { label: 'Years in Use', value: currentStructure.exists ? '1' : '0' }
+
+  const getEarliestStructureDate = () => {
+    if (structures.length === 0) return null;
+
+    const earliest = structures.reduce((earliest, current) => {
+      return new Date(current.createdAt) < new Date(earliest.createdAt) ? current : earliest;
+    });
+
+    return new Date(earliest.createdAt);
+  };
+
+
+  const getYearsInUse = () => {
+    if (structures.length === 0) return '0';
+
+    const earliestDate = getEarliestStructureDate();
+    if (!earliestDate) return '0';
+
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - earliestDate.getTime());
+    const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365);
+
+
+    return Math.max(1, Math.ceil(diffYears)).toString();
+  };
+
+
+  const getRecentChanges = () => {
+    if (!currentStructure) return '0';
+
+    // 找到上一次快照
+    const lastSnapshot = snapshots
+      .filter(snap => snap.structure.id === currentStructure.id)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+    if (!lastSnapshot) return '0';
+
+    const previousStructure = lastSnapshot.structure;
+    const currentNodes = currentStructure.nodes;
+    const currentEdges = currentStructure.edges;
+    const previousNodes = previousStructure.nodes;
+    const previousEdges = previousStructure.edges;
+
+    let changes = 0;
+
+    // 1. 新增 Node
+    const addedNodes = currentNodes.filter(
+      node => !previousNodes.some(p => p.id === node.id)
+    );
+    changes += addedNodes.length;
+
+    // 2. 删除 Node
+    const deletedNodes = previousNodes.filter(
+      node => !currentNodes.some(c => c.id === node.id)
+    );
+    changes += deletedNodes.length;
+
+    // 3. Node 层级移动
+    const movedNodes = currentNodes.filter(node => {
+      const prevNode = previousNodes.find(p => p.id === node.id);
+      return prevNode && prevNode.data.layer !== node.data.layer;
+    });
+    changes += movedNodes.length;
+
+    // 4. 新建承重关系
+    const addedEdges = currentEdges.filter(
+      edge => !previousEdges.some(p => p.id === edge.id)
+    );
+    changes += addedEdges.length;
+
+    // 5. 删除承重关系
+    const deletedEdges = previousEdges.filter(
+      edge => !currentEdges.some(c => c.id === edge.id)
+    );
+    changes += deletedEdges.length;
+
+    // 6. 改变承重方向
+    const reversedEdges = currentEdges.filter(edge => {
+      const prevEdge = previousEdges.find(p => p.id === edge.id);
+      return prevEdge && (
+        prevEdge.source !== edge.source ||
+        prevEdge.target !== edge.target
+      );
+    });
+    changes += reversedEdges.length;
+
+    return changes.toString();
+  };
+
+
+  const stats = [
+    { label: 'Active Nodes', value: currentStructure?.nodes.length.toString() || '0' },
+    { label: 'Recent Changes', value: getRecentChanges() || '0' },
+    { label: 'Years in Use', value: getYearsInUse() || '1' }
   ];
 
   const handleItemClick = (itemId: string) => {
     setActiveItem(activeItem === itemId ? null : itemId);
   };
 
-  // Handle switching to new structure
   const handleSwitchToNewStructure = () => {
+    setNewStructureName('');
     setShowConfirmDialog(true);
   };
 
-  // Confirm creation of new structure
   const confirmNewStructure = () => {
-    // 1. If current structure exists, automatically seal it as Past Journey
-    if (currentStructure.exists) {
-      const archiveEntry = `${currentStructure.name || 'Unnamed Structure'} (${currentStructure.created || 'Unknown time'})`;
+    if (hasCurrentStructure() && currentStructure) {
+      const archiveEntry = `${currentStructure.name} (${new Date(currentStructure.createdAt).toLocaleDateString()})`;
       setPastJourneys(prev => [archiveEntry, ...prev]);
-      // TODO: Actual sealing logic - move current structure to sealed chapters
+      // TODO:
     }
 
-    // 2. Create new structure - empty structure initial state
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+    initializeWithData([], []);
 
-    setCurrentStructure({
-      exists: true,
-      name: 'New Structure',
-      created: dateStr,
-      nodes: 0
-    });
 
-    // 3. Close dialog
+    const structureName = newStructureName.trim() || 'Default Structure';
+    createStructure(structureName);
+
     setShowConfirmDialog(false);
-    setActiveItem(null); // Collapse current structure panel
+    setActiveItem(null);
+    setNewStructureName('');
   };
 
-  // Cancel creation
   const cancelNewStructure = () => {
     setShowConfirmDialog(false);
+    setNewStructureName('');
   };
 
-  // Handle start structure
   const handleStartStructure = () => {
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-
-    setCurrentStructure({
-      exists: true,
-      name: 'My Structure',
-      created: dateStr,
-      nodes: 0
-    });
-    setActiveItem(null);
-  };
-
-  // Type guard functions
-  const isPastJourney = (content: StructureContent): content is PastJourney => {
-    return 'span' in content && 'stages' in content;
-  };
-
-  const isSnapshotArchive = (content: StructureContent): content is SnapshotArchive => {
-    return 'count' in content && 'recent' in content;
-  };
-
-  const isSealedChapter = (content: StructureContent): content is SealedChapter => {
-    return 'reasons' in content && 'time' in content;
-  };
-
-  const isCurrentStructure = (content: StructureContent): content is CurrentStructure => {
-    return 'exists' in content;
-  };
-
-  const renderContent = (item: StructureItem) => {
-    const content = item.content;
-
-    if (isCurrentStructure(content)) {
-      return (
-        <div className={styles.currentStructureContent}>
-          {content.exists ? (
-            <>
-              <div className={styles.structureInfo}>
-                <p><strong>Structure Name:</strong> {content.name || 'Unnamed'}</p>
-                <p><strong>Created:</strong> {content.created || 'Unknown'}</p>
-                <p><strong>Node Count:</strong> {content.nodes || 0} active nodes</p>
-                <p><strong>Status:</strong> Active</p>
-              </div>
-
-              <button
-                className={styles.switchButton}
-                onClick={handleSwitchToNewStructure}
-              >
-                <FaSync className={styles.buttonIcon} />
-                Switch to New Structure
-              </button>
-            </>
-          ) : (
-            <button
-              className={styles.startButton}
-              onClick={handleStartStructure}
-            >
-              <FaPlus className={styles.buttonIcon} />
-              Start a Structure
-            </button>
-          )}
-        </div>
-      );
-    }
-
-    if (isPastJourney(content)) {
-      return (
-        <div>
-          <p><strong>Journey Span:</strong> {content.span}</p>
-          <p><strong>Main Stages:</strong></p>
-          {content.stages.length > 0 ? (
-            <ul>
-              {content.stages.map((stage: string, index: number) => (
-                <li key={index}>{stage}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.emptyText}>No past journeys yet</p>
-          )}
-          <p><strong>Key Turning Points:</strong> {content.turningPoints}</p>
-        </div>
-      );
-    }
-
-    if (isSnapshotArchive(content)) {
-      return (
-        <div>
-          <p><strong>Archive Count:</strong> {content.count}</p>
-          <p><strong>Most Recent Snapshot:</strong> {content.recent}</p>
-          <p><strong>Earliest Snapshot:</strong> {content.earliest}</p>
-          <p><strong>Auto Archive:</strong> {content.autoSave}</p>
-          <p><strong>Key Milestones:</strong> {content.milestones}</p>
-        </div>
-      );
-    }
-
-    if (isSealedChapter(content)) {
-      const reasons = JSON.parse(content.reasons);
-      return (
-        <div>
-          <p><strong>Sealed Count:</strong> {content.count}</p>
-          <p><strong>Sealing Reasons:</strong></p>
-          <ul>
-            {reasons.map((reason: string, index: number) => (
-              <li key={index}>{reason}</li>
-            ))}
-          </ul>
-          <p><strong>Sealed Duration:</strong> {content.time}</p>
-          <p><strong>Note:</strong> {content.note}</p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  const getIcon = (itemId: string) => {
-    switch (itemId) {
-      case 'current-structure': return <FaCircle />;
-      case 'snapshot-archive': return <FaArchive />;
-      case 'past-journeys': return <FaHistory />;
-      case 'sealed-chapters': return <FaLock />;
-      default: return <FaCircle />;
-    }
+    setNewStructureName('');
+    setShowConfirmDialog(true);
   };
 
   return (
@@ -258,6 +179,22 @@ const LeftPanel: React.FC = () => {
             <p className={styles.dialogSubtext}>
               This will define what you are building now.
             </p>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="structureName" className={styles.inputLabel}>
+                Structure Name
+              </label>
+              <input
+                id="structureName"
+                type="text"
+                className={styles.nameInput}
+                placeholder="Enter structure name (e.g., Career Development 2026)"
+                value={newStructureName}
+                onChange={(e) => setNewStructureName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
             <div className={styles.dialogActions}>
               <button
                 className={styles.confirmButton}
@@ -277,35 +214,140 @@ const LeftPanel: React.FC = () => {
       )}
 
       <ul className={styles.structureList}>
-        {structureItems.map((item) => (
-          <React.Fragment key={item.id}>
-            <li
-              className={`${styles.structureItem} ${activeItem === item.id ? styles.active : ''}`}
-              onClick={() => handleItemClick(item.id)}
-            >
-              <span>{item.label}</span>
-              <div className={styles.iconContainer}>
-                {getIcon(item.id)}
-                <FaChevronDown className={`${styles.chevron} ${activeItem === item.id ? styles.rotated : ''}`} />
-              </div>
-            </li>
-            {activeItem === item.id && (
-              <div className={styles.structureContent}>
-                {renderContent(item)}
-              </div>
-            )}
-          </React.Fragment>
-        ))}
+        {/* Current Structure */}
+        <li
+          className={`${styles.structureItem} ${activeItem === 'current-structure' ? styles.active : ''}`}
+          onClick={() => handleItemClick('current-structure')}
+        >
+          <span>Current Structure</span>
+          <div className={styles.iconContainer}>
+            <FaCircle />
+            <FaChevronDown className={`${styles.chevron} ${activeItem === 'current-structure' ? styles.rotated : ''}`} />
+          </div>
+        </li>
+        {activeItem === 'current-structure' && (
+          <div className={styles.structureContent}>
+            <div className={styles.currentStructureContent}>
+              {hasCurrentStructure() && currentStructure ? (
+                <>
+                  <div className={styles.structureInfo}>
+                    <p><strong>Structure Name:</strong> {currentStructure.name}</p>
+                    <p><strong>Created:</strong> {new Date(currentStructure.createdAt).toLocaleDateString()}</p>
+                    <p><strong>Node Count:</strong> {currentStructure.nodes.length} active nodes</p>
+                    <p><strong>Edge Count:</strong> {currentStructure.edges.length} connections</p>
+                    <p><strong>Status:</strong> Active</p>
+                  </div>
+
+                  <button
+                    className={styles.switchButton}
+                    onClick={handleSwitchToNewStructure}
+                  >
+                    <FaSync className={styles.buttonIcon} />
+                    Switch to New Structure
+                  </button>
+                </>
+              ) : (
+                <button
+                  className={styles.startButton}
+                  onClick={handleStartStructure}
+                >
+                  <FaPlus className={styles.buttonIcon} />
+                  Start a Structure
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        <li
+          className={`${styles.structureItem} ${activeItem === 'snapshot-archive' ? styles.active : ''}`}
+          onClick={() => handleItemClick('snapshot-archive')}
+        >
+          <span>Snapshot Archive</span>
+          <div className={styles.iconContainer}>
+            <FaArchive />
+            <FaChevronDown className={`${styles.chevron} ${activeItem === 'snapshot-archive' ? styles.rotated : ''}`} />
+          </div>
+        </li>
+        {activeItem === 'snapshot-archive' && (
+          <div className={styles.structureContent}>
+            <div>
+              <p><strong>Archive Count:</strong> 27 snapshots</p>
+              <p><strong>Most Recent Snapshot:</strong> "New Chapter Started" - Sep 12, 2024</p>
+              <p><strong>Earliest Snapshot:</strong> "Initial Structure" - Mar 10, 2018</p>
+              <p><strong>Auto Archive:</strong> Weekly automatic snapshots</p>
+              <p><strong>Key Milestones:</strong> Career transition in 2020, Health plan launch in 2022, Creative project start in 2024</p>
+            </div>
+          </div>
+        )}
+
+        {/* Past Journeys */}
+        <li
+          className={`${styles.structureItem} ${activeItem === 'past-journeys' ? styles.active : ''}`}
+          onClick={() => handleItemClick('past-journeys')}
+        >
+          <span>Past Journeys</span>
+          <div className={styles.iconContainer}>
+            <FaHistory />
+            <FaChevronDown className={`${styles.chevron} ${activeItem === 'past-journeys' ? styles.rotated : ''}`} />
+          </div>
+        </li>
+        {activeItem === 'past-journeys' && (
+          <div className={styles.structureContent}>
+            <div>
+              <p><strong>Journey Span:</strong> {pastJourneys.length > 0
+                ? `${pastJourneys[0].split('(')[0]} to present`
+                : 'No journeys yet'}</p>
+              <p><strong>Main Stages:</strong></p>
+              {pastJourneys.length > 0 ? (
+                <ul>
+                  {pastJourneys.map((stage, index) => (
+                    <li key={index}>{stage}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={styles.emptyText}>No past journeys yet</p>
+              )}
+              <p><strong>Key Turning Points:</strong> To be added</p>
+            </div>
+          </div>
+        )}
+
+        {/* Sealed Chapters */}
+        <li
+          className={`${styles.structureItem} ${activeItem === 'sealed-chapters' ? styles.active : ''}`}
+          onClick={() => handleItemClick('sealed-chapters')}
+        >
+          <span>Sealed Chapters</span>
+          <div className={styles.iconContainer}>
+            <FaLock />
+            <FaChevronDown className={`${styles.chevron} ${activeItem === 'sealed-chapters' ? styles.rotated : ''}`} />
+          </div>
+        </li>
+        {activeItem === 'sealed-chapters' && (
+          <div className={styles.structureContent}>
+            <div>
+              <p><strong>Sealed Count:</strong> 5 chapters</p>
+              <p><strong>Sealing Reasons:</strong></p>
+              <ul>
+                <li>Student Life System (Sealed in 2020)</li>
+                <li>Entrepreneurship Attempt Structure (Sealed in 2022)</li>
+                <li>Health Challenge Plan (Sealed in 2023)</li>
+              </ul>
+              <p><strong>Sealed Duration:</strong> Longest sealed for 4 years, shortest for 1 year</p>
+              <p><strong>Note:</strong> Sealed chapters are read-only, can be viewed but not edited</p>
+            </div>
+          </div>
+        )}
       </ul>
 
       <div className={styles.questionBox}>
         <div className={styles.questionText}>
-          {currentStructure.exists
+          {hasCurrentStructure()
             ? "Have I built the right structure for my current stage?"
             : "Ready to build your first life structure?"}
         </div>
         <div className={styles.questionNote}>
-          This is the core question you've reflected on over the past 7 years
+          This is the core question you've reflected on over the past {getYearsInUse()} years
         </div>
       </div>
 

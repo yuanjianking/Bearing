@@ -5,3 +5,4 @@ export interface NodeData {
   type?: 'goal' | 'task' | 'constraint' | 'resource'
   weight?: number
 }
+

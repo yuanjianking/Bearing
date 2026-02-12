@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useFlowStore } from '../../stores/useFlowStore';
 import styles from './Snapshot.module.css';
+import { useStructureStore } from '../../stores/useStructureStore';
 
 const Snapshot: React.FC = () => {
   const [selectedSnapshot, setSelectedSnapshot] = useState<string>('');
 
   // Get snapshot data and methods from store
-  const snapshots = useFlowStore((s) => s.snapshots);
+  const snapshots = useStructureStore((s) => s.snapshots);
   const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
 
   // Format time display
@@ -45,9 +46,9 @@ const Snapshot: React.FC = () => {
 
   // Handle snapshot selection
   const handleSnapshotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const snapshotId = parseInt(e.target.value);
-    if (!isNaN(snapshotId)) {
-      setSelectedSnapshot(e.target.value);
+    const snapshotId = e.target.value;
+    if (snapshotId) {
+      setSelectedSnapshot(snapshotId);
       loadSnapshot(snapshotId);
       console.log('Load snapshot:', snapshotId);
     }
@@ -75,7 +76,7 @@ const Snapshot: React.FC = () => {
           ) : (
             snapshots.slice().reverse().map((snapshot) => (
               <option key={snapshot.id} value={snapshot.id.toString()}>
-                {formatSnapshotTime(snapshot.createdAt)} - {snapshot.nodes.length} nodes
+                {formatSnapshotTime(snapshot.createdAt)} - {snapshot.structure.nodes.length} nodes
               </option>
             ))
           )}
