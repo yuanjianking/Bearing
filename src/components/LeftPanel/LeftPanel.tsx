@@ -9,64 +9,82 @@ import {
   FaLock,
   FaCircle,
   FaPlus,
-  FaSync
+  FaSync,
+  FaCamera,
+  FaClock,
+  FaTag,
+  FaRoute,
+  FaBook
 } from 'react-icons/fa';
 
 import styles from './LeftPanel.module.css';
 import { useStructureStore } from '../../stores/useStructureStore';
 import { useFlowStore } from '../../stores/useFlowStore';
 
+
 const LeftPanel: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [isViewingHistory, setIsViewingHistory] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [newStructureName, setNewStructureName] = useState('');
 
-
+  // Structure Store
   const structures = useStructureStore((s) => s.structures);
   const currentStructureId = useStructureStore((s) => s.currentStructureId);
   const createStructure = useStructureStore((s) => s.createStructure);
   const hasCurrentStructure = useStructureStore((s) => s.hasCurrentStructure);
   const snapshots = useStructureStore((s) => s.snapshots);
+  const pastJourneys = useStructureStore((s) => s.pastJourneys);
+  const sealedChapters = useStructureStore((s) => s.SealedChapters);
 
+  const getSnapshotsByStructureId = useStructureStore((s) => s.getSnapshotsByStructureId);
+  const savePastJourney = useStructureStore((s) => s.savePastJourney);
+  const enterViewMode = useStructureStore((s) => s.enterViewMode);
+  const exitViewMode = useStructureStore((s) => s.exitViewMode);
+
+
+  // Flow Store
+  const initializeWithData = useFlowStore((s) => s.initializeWithData);
+  const setSelectedId = useFlowStore((s) => s.setSelectedId);
+  const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
+
+  // Current structure
   const currentStructure = structures.find(s => s.id === currentStructureId);
 
-  const initializeWithData = useFlowStore((s) => s.initializeWithData);
+  // Get snapshots for current structure
+  const currentStructureSnapshots = currentStructure
+    ? getSnapshotsByStructureId(currentStructure.id)
+    : [];
 
-  // Past journeys state management
-  const [pastJourneys, setPastJourneys] = useState<string[]>([]);
+  const snapshotStats = {
+    count: currentStructureSnapshots.length,
+    latest: currentStructureSnapshots[0],
+    earliest: currentStructureSnapshots[currentStructureSnapshots.length - 1]
+  };
 
-
+  // ============== Utility Functions ==============
 
   const getEarliestStructureDate = () => {
     if (structures.length === 0) return null;
-
     const earliest = structures.reduce((earliest, current) => {
       return new Date(current.createdAt) < new Date(earliest.createdAt) ? current : earliest;
     });
-
     return new Date(earliest.createdAt);
   };
 
-
   const getYearsInUse = () => {
     if (structures.length === 0) return '0';
-
     const earliestDate = getEarliestStructureDate();
     if (!earliestDate) return '0';
-
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - earliestDate.getTime());
     const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365);
-
-
     return Math.max(1, Math.ceil(diffYears)).toString();
   };
-
 
   const getRecentChanges = () => {
     if (!currentStructure) return '0';
 
-    // 找到上一次快照
     const lastSnapshot = snapshots
       .filter(snap => snap.structure.id === currentStructure.id)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
@@ -81,38 +99,38 @@ const LeftPanel: React.FC = () => {
 
     let changes = 0;
 
-    // 1. 新增 Node
+    // 1. Added Nodes
     const addedNodes = currentNodes.filter(
       node => !previousNodes.some(p => p.id === node.id)
     );
     changes += addedNodes.length;
 
-    // 2. 删除 Node
+    // 2. Deleted Nodes
     const deletedNodes = previousNodes.filter(
       node => !currentNodes.some(c => c.id === node.id)
     );
     changes += deletedNodes.length;
 
-    // 3. Node 层级移动
+    // 3. Node Layer Movement
     const movedNodes = currentNodes.filter(node => {
       const prevNode = previousNodes.find(p => p.id === node.id);
       return prevNode && prevNode.data.layer !== node.data.layer;
     });
     changes += movedNodes.length;
 
-    // 4. 新建承重关系
+    // 4. Added Edges
     const addedEdges = currentEdges.filter(
       edge => !previousEdges.some(p => p.id === edge.id)
     );
     changes += addedEdges.length;
 
-    // 5. 删除承重关系
+    // 5. Deleted Edges
     const deletedEdges = previousEdges.filter(
       edge => !currentEdges.some(c => c.id === edge.id)
     );
     changes += deletedEdges.length;
 
-    // 6. 改变承重方向
+    // 6. Edge Direction Changed
     const reversedEdges = currentEdges.filter(edge => {
       const prevEdge = previousEdges.find(p => p.id === edge.id);
       return prevEdge && (
@@ -125,15 +143,20 @@ const LeftPanel: React.FC = () => {
     return changes.toString();
   };
 
-
-  const stats = [
-    { label: 'Active Nodes', value: currentStructure?.nodes.length.toString() || '0' },
-    { label: 'Recent Changes', value: getRecentChanges() || '0' },
-    { label: 'Years in Use', value: getYearsInUse() || '1' }
-  ];
+  // ============== Event Handlers ==============
 
   const handleItemClick = (itemId: string) => {
     setActiveItem(activeItem === itemId ? null : itemId);
+  };
+
+  const handleReturnToCurrentStructure = () => {
+    exitViewMode();
+    if (currentStructure) {
+      initializeWithData(currentStructure.nodes, currentStructure.edges);
+      setSelectedId(null);
+      setIsViewingHistory(false);
+      setActiveItem(null); // Optional: collapse the panel
+    }
   };
 
   const handleSwitchToNewStructure = () => {
@@ -143,14 +166,15 @@ const LeftPanel: React.FC = () => {
 
   const confirmNewStructure = () => {
     if (hasCurrentStructure() && currentStructure) {
-      const archiveEntry = `${currentStructure.name} (${new Date(currentStructure.createdAt).toLocaleDateString()})`;
-      setPastJourneys(prev => [archiveEntry, ...prev]);
-      // TODO:
+      // Save current structure as Past Journey before switching
+      savePastJourney();
+
     }
 
+    // Clear canvas
     initializeWithData([], []);
 
-
+    // Create new structure
     const structureName = newStructureName.trim() || 'Default Structure';
     createStructure(structureName);
 
@@ -168,6 +192,185 @@ const LeftPanel: React.FC = () => {
     setNewStructureName('');
     setShowConfirmDialog(true);
   };
+
+  const handleSnapshotClick = (snapshotId: string) => {
+    loadSnapshot(snapshotId);
+    setActiveItem(null);
+  };
+
+  const handlePastJourneyClick = (journeyId: string) => {
+    // Find and load the past journey
+    const journey = pastJourneys.find(j => j.id === journeyId);
+    if (journey) {
+      enterViewMode();
+      initializeWithData(journey.structure.nodes, journey.structure.edges);
+      setSelectedId(null);
+      setActiveItem(null);
+      setIsViewingHistory(true);
+    }
+  };
+
+  const handleSealedChapterClick = (chapterId: string) => {
+    // Find and load the sealed chapter
+    const chapter = sealedChapters.find(c => c.id === chapterId);
+    if (chapter) {
+      enterViewMode();
+      initializeWithData(chapter.structure.nodes, chapter.structure.edges);
+      setSelectedId(null);
+      setActiveItem(null);
+      setIsViewingHistory(true);
+    }
+  };
+
+  // ============== Stats ==============
+
+  const stats = [
+    { label: 'Active Nodes', value: currentStructure?.nodes.length.toString() || '0' },
+    { label: 'Recent Changes', value: getRecentChanges() || '0' },
+    { label: 'Years in Use', value: getYearsInUse() || '1' }
+  ];
+
+  // ============== Render Functions ==============
+
+  const renderSnapshotArchive = () => (
+    <div className={styles.structureContent}>
+      {!currentStructure ? (
+        <p className={styles.emptyText}>No active structure</p>
+      ) : currentStructureSnapshots.length === 0 ? (
+        <div className={styles.emptySnapshots}>
+          <FaCamera className={styles.emptyIcon} />
+          <p>No snapshots yet</p>
+          <p className={styles.emptyHint}>Save a snapshot to track your progress</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.snapshotStats}>
+            <p><strong>Total Snapshots:</strong> {snapshotStats.count}</p>
+            {snapshotStats.latest && (
+              <p><strong>Latest:</strong> {new Date(snapshotStats.latest.createdAt).toLocaleDateString()}</p>
+            )}
+          </div>
+
+          <div className={styles.snapshotList}>
+            <h4>Snapshot Timeline</h4>
+            {currentStructureSnapshots.map((snapshot, index) => (
+              <div
+                key={snapshot.id}
+                className={styles.snapshotItem}
+                onClick={() => handleSnapshotClick(snapshot.id)}
+              >
+                <div className={styles.snapshotIcon}>
+                  <FaCamera />
+                </div>
+                <div className={styles.snapshotInfo}>
+                  <div className={styles.snapshotName}>
+                    {snapshot.structure.name || `Snapshot ${currentStructureSnapshots.length - index}`}
+                  </div>
+                  <div className={styles.snapshotDate}>
+                    <FaClock /> {new Date(snapshot.createdAt).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderPastJourneys = () => (
+    <div className={styles.structureContent}>
+      {pastJourneys.length === 0 ? (
+        <div className={styles.emptySnapshots}>
+          <FaHistory className={styles.emptyIcon} />
+          <p>No past journeys yet</p>
+          <p className={styles.emptyHint}>When you start a new structure, your current one becomes a past journey</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.snapshotStats}>
+            <p><strong>Total Journeys:</strong> {pastJourneys.length}</p>
+            <p><strong>Journey Span:</strong> {pastJourneys.length > 0
+              ? `${new Date(pastJourneys[pastJourneys.length - 1].createdAt).toLocaleDateString()} - ${new Date(pastJourneys[0].createdAt).toLocaleDateString()}`
+              : 'N/A'}</p>
+          </div>
+
+          <div className={styles.snapshotList}>
+            <h4>Past Journeys</h4>
+            {pastJourneys.map((journey, index) => (
+              <div
+                key={journey.id}
+                className={styles.snapshotItem}
+                onClick={() => handlePastJourneyClick(journey.id)}
+              >
+                <div className={styles.snapshotIcon}>
+                  <FaRoute />
+                </div>
+                <div className={styles.snapshotInfo}>
+                  <div className={styles.snapshotName}>
+                    {journey.structure.name || `Journey ${pastJourneys.length - index}`}
+                  </div>
+                  <div className={styles.snapshotDate}>
+                    <FaClock /> {new Date(journey.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className={styles.snapshotDesc}>
+                    <FaTag /> Completed: {new Date(journey.structure.timestamp).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderSealedChapters = () => (
+    <div className={styles.structureContent}>
+      {sealedChapters.length === 0 ? (
+        <div className={styles.emptySnapshots}>
+          <FaLock className={styles.emptyIcon} />
+          <p>No sealed chapters yet</p>
+          <p className={styles.emptyHint}>Seal a chapter to commemorate a significant life phase</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.snapshotStats}>
+            <p><strong>Sealed Chapters:</strong> {sealedChapters.length}</p>
+            <p><strong>Time Span:</strong> {sealedChapters.length > 0
+              ? `${new Date(sealedChapters[sealedChapters.length - 1].createdAt).toLocaleDateString()} - ${new Date(sealedChapters[0].createdAt).toLocaleDateString()}`
+              : 'N/A'}</p>
+          </div>
+
+          <div className={styles.snapshotList}>
+            <h4>Sealed Chapters</h4>
+            {sealedChapters.map((chapter, index) => (
+              <div
+                key={chapter.id}
+                className={styles.snapshotItem}
+                onClick={() => handleSealedChapterClick(chapter.id)}
+              >
+                <div className={styles.snapshotIcon}>
+                  <FaBook />
+                </div>
+                <div className={styles.snapshotInfo}>
+                  <div className={styles.snapshotName}>
+                    {chapter.structure.name || `Chapter ${sealedChapters.length - index}`}
+                  </div>
+                  <div className={styles.snapshotDate}>
+                    <FaClock /> Sealed: {new Date(chapter.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className={styles.snapshotDesc}>
+                    <FaTag /> {new Date(chapter.structure.timestamp).toLocaleDateString()} - {new Date(chapter.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <div className={`${styles.leftPanel} ${styles.panel}`}>
@@ -238,13 +441,25 @@ const LeftPanel: React.FC = () => {
                     <p><strong>Status:</strong> Active</p>
                   </div>
 
-                  <button
-                    className={styles.switchButton}
-                    onClick={handleSwitchToNewStructure}
-                  >
-                    <FaSync className={styles.buttonIcon} />
-                    Switch to New Structure
-                  </button>
+                 <div className={styles.buttonGroup}>
+                    {isViewingHistory && (
+                      <button
+                        className={styles.returnButton}
+                        onClick={handleReturnToCurrentStructure}
+                      >
+                        <FaSync className={styles.buttonIcon} />
+                        Return to Current Structure
+                      </button>
+                    )}
+
+                    <button
+                      className={styles.switchButton}
+                      onClick={handleSwitchToNewStructure}
+                    >
+                      <FaSync className={styles.buttonIcon} />
+                      Switch to New Structure
+                    </button>
+                  </div>
                 </>
               ) : (
                 <button
@@ -258,6 +473,8 @@ const LeftPanel: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Snapshot Archive */}
         <li
           className={`${styles.structureItem} ${activeItem === 'snapshot-archive' ? styles.active : ''}`}
           onClick={() => handleItemClick('snapshot-archive')}
@@ -268,17 +485,7 @@ const LeftPanel: React.FC = () => {
             <FaChevronDown className={`${styles.chevron} ${activeItem === 'snapshot-archive' ? styles.rotated : ''}`} />
           </div>
         </li>
-        {activeItem === 'snapshot-archive' && (
-          <div className={styles.structureContent}>
-            <div>
-              <p><strong>Archive Count:</strong> 27 snapshots</p>
-              <p><strong>Most Recent Snapshot:</strong> "New Chapter Started" - Sep 12, 2024</p>
-              <p><strong>Earliest Snapshot:</strong> "Initial Structure" - Mar 10, 2018</p>
-              <p><strong>Auto Archive:</strong> Weekly automatic snapshots</p>
-              <p><strong>Key Milestones:</strong> Career transition in 2020, Health plan launch in 2022, Creative project start in 2024</p>
-            </div>
-          </div>
-        )}
+        {activeItem === 'snapshot-archive' && renderSnapshotArchive()}
 
         {/* Past Journeys */}
         <li
@@ -291,26 +498,7 @@ const LeftPanel: React.FC = () => {
             <FaChevronDown className={`${styles.chevron} ${activeItem === 'past-journeys' ? styles.rotated : ''}`} />
           </div>
         </li>
-        {activeItem === 'past-journeys' && (
-          <div className={styles.structureContent}>
-            <div>
-              <p><strong>Journey Span:</strong> {pastJourneys.length > 0
-                ? `${pastJourneys[0].split('(')[0]} to present`
-                : 'No journeys yet'}</p>
-              <p><strong>Main Stages:</strong></p>
-              {pastJourneys.length > 0 ? (
-                <ul>
-                  {pastJourneys.map((stage, index) => (
-                    <li key={index}>{stage}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className={styles.emptyText}>No past journeys yet</p>
-              )}
-              <p><strong>Key Turning Points:</strong> To be added</p>
-            </div>
-          </div>
-        )}
+        {activeItem === 'past-journeys' && renderPastJourneys()}
 
         {/* Sealed Chapters */}
         <li
@@ -323,21 +511,7 @@ const LeftPanel: React.FC = () => {
             <FaChevronDown className={`${styles.chevron} ${activeItem === 'sealed-chapters' ? styles.rotated : ''}`} />
           </div>
         </li>
-        {activeItem === 'sealed-chapters' && (
-          <div className={styles.structureContent}>
-            <div>
-              <p><strong>Sealed Count:</strong> 5 chapters</p>
-              <p><strong>Sealing Reasons:</strong></p>
-              <ul>
-                <li>Student Life System (Sealed in 2020)</li>
-                <li>Entrepreneurship Attempt Structure (Sealed in 2022)</li>
-                <li>Health Challenge Plan (Sealed in 2023)</li>
-              </ul>
-              <p><strong>Sealed Duration:</strong> Longest sealed for 4 years, shortest for 1 year</p>
-              <p><strong>Note:</strong> Sealed chapters are read-only, can be viewed but not edited</p>
-            </div>
-          </div>
-        )}
+        {activeItem === 'sealed-chapters' && renderSealedChapters()}
       </ul>
 
       <div className={styles.questionBox}>

@@ -19,3 +19,19 @@ export interface FlowSnapshot {
   createdAt: string
   structure: Structure;
 }
+
+// Timeline entry type
+export interface PastJourney {
+  id: string;
+  timestamp: number;
+  createdAt: string
+  structure: Structure;
+}
+
+// Sealed chapter type
+export interface SealedChapter {
+  id: string;
+  timestamp: number;
+  createdAt: string
+  structure: Structure;
+}

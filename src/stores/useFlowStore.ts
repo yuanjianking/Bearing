@@ -213,7 +213,12 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
   syncToStructure: () => {
     const { nodes, edges } = get()
     const structureStore = useStructureStore.getState()
-    const { currentStructureId, updateStructure} = structureStore
+     const { currentStructureId, updateStructure, isViewingHistory } = structureStore
+
+     if (isViewingHistory) {
+      console.log('Viewing history mode - skip sync to structure')
+      return
+    }
 
     if (currentStructureId) {
       updateStructure(currentStructureId, nodes, edges)

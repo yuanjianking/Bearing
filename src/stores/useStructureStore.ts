@@ -1,14 +1,18 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import type { FlowSnapshot, Structure } from '../types/structure';
+import type { FlowSnapshot, PastJourney, SealedChapter, Structure } from '../types/structure';
 import type { NodeData } from '../types/flow';
 import type { Node, Edge } from 'reactflow';
 
 interface StructureStore {
 
   structures: Structure[];
-  snapshots: FlowSnapshot[]
+  snapshots: FlowSnapshot[];
+  pastJourneys: FlowSnapshot[];
+  SealedChapters: FlowSnapshot[];
   currentStructureId: string | null;
+  viewingStructureId: string | null;
+  isViewingHistory: boolean;
 
   createStructure: (name: string) => Structure;
 
@@ -18,12 +22,25 @@ interface StructureStore {
   getCurrentStructure: () => Structure | null;
 
   saveSnapshot: () => void
+  getSnapshotsByStructureId: (structureId: string) => FlowSnapshot[];
+
+  savePastJourney: () => void;
+  saveSealedChapter: () => void;
+
+  enterViewMode: () => void;
+  exitViewMode: () => void;
+
 }
 
 export const useStructureStore = create<StructureStore>((set, get) => ({
   structures: [],
   snapshots: [],
+  pastJourneys: [],
+  SealedChapters: [],
   currentStructureId: null,
+
+  viewingStructureId: null,
+  isViewingHistory: false,
 
   createStructure: (name) => {
     const now = Date.now();
@@ -99,4 +116,63 @@ export const useStructureStore = create<StructureStore>((set, get) => ({
       };
     }),
 
+  getSnapshotsByStructureId: (structureId: string) => {
+    return get().snapshots.filter(s => s.structure.id === structureId)
+  },
+
+  savePastJourney: () =>
+    set((state) => {
+
+      const currentStructure = get().getCurrentStructure()
+
+      if (!currentStructure) {
+        return state
+      }
+
+      const newyJourney: PastJourney = {
+        id: nanoid(),
+        timestamp: Date.now(),
+        createdAt: new Date().toISOString(),
+        structure: currentStructure,
+      };
+
+      return {
+        pastJourneys: [...state.pastJourneys, newyJourney],
+      };
+    }),
+
+  saveSealedChapter: () =>
+    set((state) => {
+
+      const currentStructure = get().getCurrentStructure()
+
+      if (!currentStructure) {
+        return state
+      }
+
+      const newChapter: SealedChapter = {
+        id: nanoid(),
+        timestamp: Date.now(),
+        createdAt: new Date().toISOString(),
+        structure: currentStructure,
+      };
+
+      return {
+        SealedChapters: [...state.SealedChapters, newChapter],
+      };
+    }),
+
+  enterViewMode: () => {
+     set({
+      viewingStructureId: get().currentStructureId,
+      isViewingHistory: true
+    });
+  },
+
+  exitViewMode: () => {
+    set({
+      viewingStructureId: null,
+      isViewingHistory: false
+    });
+  },
 }));
