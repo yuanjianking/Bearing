@@ -165,6 +165,7 @@ const LeftPanel: React.FC = () => {
   };
 
   const confirmNewStructure = () => {
+    exitViewMode();
     if (hasCurrentStructure() && currentStructure) {
       // Save current structure as Past Journey before switching
       savePastJourney();
@@ -189,11 +190,13 @@ const LeftPanel: React.FC = () => {
   };
 
   const handleStartStructure = () => {
+    exitViewMode();
     setNewStructureName('');
     setShowConfirmDialog(true);
   };
 
   const handleSnapshotClick = (snapshotId: string) => {
+    exitViewMode();
     loadSnapshot(snapshotId);
     setActiveItem(null);
   };
