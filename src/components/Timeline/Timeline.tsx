@@ -9,6 +9,7 @@ import styles from './Timeline.module.css';
 import { useFlowStore } from '../../stores/useFlowStore';
 import { useTimelineStore } from '../../stores/useTimelineStore';
 import type { TimelineEntry, TimelineMarker } from '../../types/timeline';
+import { useStructureStore } from '../../stores/useStructureStore';
 
 const Timeline: React.FC = () => {
   const [selectedMarker, setSelectedMarker] = useState<string>('');
@@ -16,7 +17,7 @@ const Timeline: React.FC = () => {
 
   // Original saveSnapshot functionality
   const saveSnapshot = useFlowStore((s) => s.saveSnapshot);
-  const snapshots = useFlowStore((s) => s.snapshots);
+  const snapshots = useStructureStore((s) => s.snapshots);
   const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
 
   // New timeline recording functionality
