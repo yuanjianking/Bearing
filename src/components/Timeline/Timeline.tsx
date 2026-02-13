@@ -256,16 +256,17 @@ const Timeline: React.FC = () => {
           </div>
 
           <div className={styles.timelineButtons}>
-            <button
-              className={`${styles.btn} ${styles.btnOutline}`}
-              onClick={() => handleButtonClick('compare')}
-              disabled={markers.length < 2}
-              title="Compare system states at different time points"
-            >
-              <FaExchangeAlt className={styles.btnIcon} />
-              Compare
-            </button>
-
+            {isViewingHistory &&
+              <button
+                className={`${styles.btn} ${styles.btnOutline}`}
+                onClick={() => handleButtonClick('compare')}
+                disabled={markers.length < 2}
+                title="Compare system states at different time points"
+              >
+                <FaExchangeAlt className={styles.btnIcon} />
+                Compare
+              </button>
+         }
             {/* Record snapshot button - executes both functions simultaneously */}
             <button
               className={`${styles.btn} ${styles.btnSave}`}

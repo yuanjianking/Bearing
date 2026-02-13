@@ -15,38 +15,10 @@ import Inspector from '../Inspector/Inspector';
 const RightPanel: React.FC = () => {
   const [reflectionOpen, setReflectionOpen] = useState<boolean>(false);
   const [futureOpen, setFutureOpen] = useState<boolean>(false);
+  const [isShow] = useState<boolean>(false);
 
   // Define insight analysis data using InsightItem type
-  const insights: InsightItem[] = [
-    {
-      id: 1,
-      type: 'persistent',
-      title: 'Persistent Node',
-      content: '"Skill Building" has been questioned 12 times',
-      time: 'Today'
-    },
-    {
-      id: 2,
-      type: 'focus',
-      title: 'Focus Shift',
-      content: 'New connection added in the vision layer',
-      time: 'Today'
-    },
-    {
-      id: 3,
-      type: 'update',
-      title: 'Node Update',
-      content: '"Daily Practice" priority adjusted to high',
-      time: '1 hour ago'
-    },
-    {
-      id: 4,
-      type: 'system',
-      title: 'System Notification',
-      content: '"Health & Vitality" node detected with no updates for 3 consecutive days',
-      time: '3 hours ago'
-    }
-  ];
+  const insights: InsightItem[] = [ ];
 
   const getInsightClass = (type: string) => {
     switch (type) {
@@ -61,6 +33,7 @@ const RightPanel: React.FC = () => {
   return (
     <div className={`${styles.rightPanel} ${styles.panel}`}>
       {/* Insight Analysis Section (using original dynamic message format) */}
+      {isShow &&
       <div className={styles.insightsSection}>
         <div className={styles.insightsHeader}>
           <FaLightbulb className={styles.insightsIcon} />
@@ -81,8 +54,9 @@ const RightPanel: React.FC = () => {
           ))}
         </div>
       </div>
-
+      }
       {/* Reflection Records and Future Path dropdown buttons (moved to middle) */}
+      {isShow &&
       <div className={styles.actionsSection}>
         <div className={styles.actionButtons}>
           {/* Reflection Records */}
@@ -132,6 +106,7 @@ const RightPanel: React.FC = () => {
           )}
         </div>
       </div>
+      }
       {/* Node Properties Panel - placed at the bottom */}
       <div className={styles.inspectorSection}>
         <Inspector />
