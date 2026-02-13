@@ -1,4 +1,4 @@
-export type TimelineAction = 'snapshot' | 'structure_switch' | 'archive' | 'seal_chapter';
+export type TimelineAction = 'snapshot' | 'journey' | 'chapter';
 
 // Timeline entry type
 export interface TimelineEntry {
@@ -7,6 +7,7 @@ export interface TimelineEntry {
   createdAt: string;
   action: TimelineAction;
   title: string;
+  targetStructureId: string;
 }
 
 // Timeline marker type
@@ -15,6 +16,7 @@ export interface TimelineMarker {
   date: string; // YYYY-MM-DD
   position: string; // CSS position percentage
   type: 'past' | 'current' | 'future';
+  entryType?: 'snapshot' | 'journey' | 'chapter';
   entryId?: string;
   data?: TimelineEntry;
 }

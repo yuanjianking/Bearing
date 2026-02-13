@@ -12,14 +12,17 @@ interface TimelineStore {
 
   // Four key actions
   recordSnapshot: (
+    targetStructureId: string,
     title: string,
   ) => void;
 
-  recordArchive: (
+  recordJourney: (
+    targetStructureId: string,
     title: string,
   ) => void;
 
   recordSealChapter: (
+    targetStructureId: string,
     chapterTitle: string,
   ) => void;
 
@@ -39,14 +42,18 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   currentEntryId: null,
 
   // 1. Record snapshot
-  recordSnapshot: (title) =>
+  recordSnapshot: (targetStructureId: string, title: string) =>
     set((state) => {
       const todayStr = new Date().toISOString().split('T')[0]
 
       // Filter out snapshots already recorded today
       const filteredEntries = state.entries.filter(
-        (entry) => entry.createdAt.split('T')[0] !== todayStr || entry.action !== 'snapshot'
-      )
+        (entry) => !(
+          entry.createdAt.split('T')[0] === todayStr &&
+          entry.action === 'snapshot' &&
+          entry.targetStructureId === targetStructureId
+        )
+      );
 
       const structureStore = useStructureStore.getState()
       const { currentStructureId, getCurrentStructure } = structureStore
@@ -67,6 +74,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         createdAt: new Date().toISOString(),
         action: 'snapshot',
         title: `${title}`,
+        targetStructureId: targetStructureId,
       }
 
       return {
@@ -76,15 +84,16 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     }),
 
 
-  // 3. Record archive
-  recordArchive: (title) =>
+  // 3. Record journey
+  recordJourney: (targetStructureId: string, title: string) =>
     set((state) => {
       const entry: TimelineEntry = {
         id: nanoid(),
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
-        action: 'archive',
-        title: `Archive: ${title}`,
+        action: 'journey',
+        title: `Journey: ${title}`,
+        targetStructureId: targetStructureId,
       };
 
       return {
@@ -94,14 +103,15 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     }),
 
   // 4. Record seal chapter
-  recordSealChapter: (chapterTitle) =>
+  recordSealChapter: (targetStructureId: string, chapterTitle: string) =>
     set((state) => {
       const entry: TimelineEntry = {
         id: nanoid(),
         timestamp: Date.now(),
         createdAt: new Date().toISOString(),
-        action: 'seal_chapter',
+        action: 'chapter',
         title: `Seal Chapter: ${chapterTitle}`,
+        targetStructureId: targetStructureId,
       };
 
       return {

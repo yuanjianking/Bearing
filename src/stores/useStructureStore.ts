@@ -27,8 +27,9 @@ interface StructureStore {
   savePastJourney: () => void;
   saveSealedChapter: () => void;
 
-  enterViewMode: () => void;
+  enterViewMode: (structureId: string) => void;
   exitViewMode: () => void;
+
 
 }
 
@@ -93,16 +94,15 @@ export const useStructureStore = create<StructureStore>((set, get) => ({
       // Generate today's date string (YYYY-MM-DD format)
       const todayStr = new Date().toISOString().split('T')[0]
 
-      // Filter out snapshots already created today
-      const filteredSnapshots = state.snapshots.filter(
-        (snap) => snap.createdAt.split('T')[0] !== todayStr
-      )
-
       const currentStructure = get().getCurrentStructure()
-
       if (!currentStructure) {
         return state
       }
+
+      // Filter out snapshots of the current structure that were created today
+      const filteredSnapshots = state.snapshots.filter(
+        (snap) => !(snap.structure.id === currentStructure.id && snap.createdAt.split('T')[0] === todayStr)
+      )
 
       const newSnapshot: FlowSnapshot = {
         id: nanoid(),
@@ -159,12 +159,13 @@ export const useStructureStore = create<StructureStore>((set, get) => ({
 
       return {
         SealedChapters: [...state.SealedChapters, newChapter],
+        currentStructureId: null, // Clear current structure
       };
     }),
 
-  enterViewMode: () => {
+  enterViewMode: (structureId: string) => {
      set({
-      viewingStructureId: get().currentStructureId,
+      viewingStructureId: structureId,
       isViewingHistory: true
     });
   },

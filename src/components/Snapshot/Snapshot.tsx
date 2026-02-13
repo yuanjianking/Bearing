@@ -8,7 +8,19 @@ const Snapshot: React.FC = () => {
 
   // Get snapshot data and methods from store
   const snapshots = useStructureStore((s) => s.snapshots);
+  const currentStructureId = useStructureStore((s) => s.currentStructureId);
+  const viewingStructureId = useStructureStore((s) => s.viewingStructureId);
+  const isViewingHistory = useStructureStore((s) => s.isViewingHistory);
   const loadSnapshot = useFlowStore((s) => s.loadSnapshot);
+
+  const targetStructureId = isViewingHistory ? viewingStructureId : currentStructureId;
+
+
+  const filteredSnapshots = React.useMemo(() => {
+    if (!targetStructureId) return [];
+    return snapshots.filter(s => s.structure.id === targetStructureId);
+  }, [snapshots, targetStructureId]);
+
 
   // Format time display
   const formatSnapshotTime = (iso: string) => {
@@ -71,10 +83,10 @@ const Snapshot: React.FC = () => {
           value={selectedSnapshot}
           onChange={handleSnapshotChange}
         >
-          {snapshots.length === 0 ? (
+          {filteredSnapshots.length === 0 ? (
             <option value="">No snapshots</option>
           ) : (
-            snapshots.slice().reverse().map((snapshot) => (
+            filteredSnapshots.slice().reverse().map((snapshot) => (
               <option key={snapshot.id} value={snapshot.id.toString()}>
                 {formatSnapshotTime(snapshot.createdAt)} - {snapshot.structure.nodes.length} nodes
               </option>

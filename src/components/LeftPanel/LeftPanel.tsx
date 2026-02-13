@@ -20,11 +20,11 @@ import {
 import styles from './LeftPanel.module.css';
 import { useStructureStore } from '../../stores/useStructureStore';
 import { useFlowStore } from '../../stores/useFlowStore';
+import { useTimelineStore } from '../../stores/useTimelineStore';
 
 
 const LeftPanel: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
-  const [isViewingHistory, setIsViewingHistory] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [newStructureName, setNewStructureName] = useState('');
 
@@ -36,12 +36,14 @@ const LeftPanel: React.FC = () => {
   const snapshots = useStructureStore((s) => s.snapshots);
   const pastJourneys = useStructureStore((s) => s.pastJourneys);
   const sealedChapters = useStructureStore((s) => s.SealedChapters);
-
+  const isViewingHistory = useStructureStore((s) => s.isViewingHistory);
   const getSnapshotsByStructureId = useStructureStore((s) => s.getSnapshotsByStructureId);
   const savePastJourney = useStructureStore((s) => s.savePastJourney);
   const enterViewMode = useStructureStore((s) => s.enterViewMode);
   const exitViewMode = useStructureStore((s) => s.exitViewMode);
 
+  // Timeline Store
+  const recordJourney = useTimelineStore((s) => s.recordJourney);
 
   // Flow Store
   const initializeWithData = useFlowStore((s) => s.initializeWithData);
@@ -154,7 +156,6 @@ const LeftPanel: React.FC = () => {
     if (currentStructure) {
       initializeWithData(currentStructure.nodes, currentStructure.edges);
       setSelectedId(null);
-      setIsViewingHistory(false);
       setActiveItem(null); // Optional: collapse the panel
     }
   };
@@ -169,7 +170,13 @@ const LeftPanel: React.FC = () => {
     if (hasCurrentStructure() && currentStructure) {
       // Save current structure as Past Journey before switching
       savePastJourney();
+      //Record to timeline simultaneously
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const title = `Journey (${dateStr})`;
 
+      // Call timeline store's record journey method
+      recordJourney(currentStructure.id, title);
     }
 
     // Clear canvas
@@ -196,7 +203,7 @@ const LeftPanel: React.FC = () => {
   };
 
   const handleSnapshotClick = (snapshotId: string) => {
-    exitViewMode();
+    enterViewMode(currentStructureId!);
     loadSnapshot(snapshotId);
     setActiveItem(null);
   };
@@ -205,11 +212,10 @@ const LeftPanel: React.FC = () => {
     // Find and load the past journey
     const journey = pastJourneys.find(j => j.id === journeyId);
     if (journey) {
-      enterViewMode();
+      enterViewMode(journey.structure.id);
       initializeWithData(journey.structure.nodes, journey.structure.edges);
       setSelectedId(null);
       setActiveItem(null);
-      setIsViewingHistory(true);
     }
   };
 
@@ -217,11 +223,10 @@ const LeftPanel: React.FC = () => {
     // Find and load the sealed chapter
     const chapter = sealedChapters.find(c => c.id === chapterId);
     if (chapter) {
-      enterViewMode();
+      enterViewMode(chapter.structure.id);
       initializeWithData(chapter.structure.nodes, chapter.structure.edges);
       setSelectedId(null);
       setActiveItem(null);
-      setIsViewingHistory(true);
     }
   };
 
