@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   FaExchangeAlt,
   FaLock,
-  FaDownload,
   FaCamera
 } from 'react-icons/fa';
 import styles from './Timeline.module.css';
@@ -286,14 +285,14 @@ const Timeline: React.FC = () => {
               Seal Chapter
             </button>
 
-            <button
+            {/* <button
               className={`${styles.btn} ${styles.btnPrimary}`}
               onClick={() => handleButtonClick('export')}
               title="Export timeline data"
             >
               <FaDownload className={styles.btnIcon} />
               Export Data
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
